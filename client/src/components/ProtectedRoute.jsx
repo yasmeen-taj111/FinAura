@@ -1,0 +1,30 @@
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center">
+        {/* Animated glowing spinner */}
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-4 border-indigo-500/20"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-t-brand-secondary animate-spin"></div>
+        </div>
+        <p className="mt-4 text-brand-muted text-sm font-medium tracking-wide">
+          Verifying your financial profile...
+        </p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;
