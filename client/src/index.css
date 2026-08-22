@@ -8,6 +8,15 @@
     @apply bg-brand-bg text-brand-ink font-sans antialiased min-h-screen overflow-x-hidden;
   }
 
+  button, a, input, select, textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid rgba(6, 78, 59, 0.25);
+    outline-offset: 2px;
+  }
+
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -33,6 +42,14 @@
 
   .page-shell {
     @apply min-h-screen bg-brand-bg text-brand-ink;
+  }
+
+  .page-heading {
+    @apply font-serif text-4xl text-brand-ink md:text-5xl;
+  }
+
+  .page-copy {
+    @apply mt-3 text-sm leading-6 text-brand-muted;
   }
 
   .eyebrow {

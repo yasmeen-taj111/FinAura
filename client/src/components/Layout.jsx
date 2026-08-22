@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { BookOpen, Bot, Compass, LayoutDashboard, LogOut, Menu, Shield, Target, X, User } from 'lucide-react';
+import { BookOpen, Bot, Compass, LayoutDashboard, LogOut, Menu, Shield, Target, X, User, UsersRound } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,7 +8,9 @@ const navItems = [
   { label: 'Home', path: '/dashboard', icon: LayoutDashboard },
   { label: 'Learn', path: '/learn', icon: BookOpen },
   { label: 'Plan', path: '/plan', icon: Target },
+  { label: 'Goals', path: '/goals', icon: Target },
   { label: 'Explore', path: '/sandbox', icon: Compass },
+  { label: 'Mentors', path: '/mentors', icon: UsersRound },
   { label: 'My Profile', path: '/profile', icon: User },
   { label: 'AI Assistant', path: '/assistant', icon: Bot },
 ];

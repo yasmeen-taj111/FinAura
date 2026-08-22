@@ -2,9 +2,15 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const calculateAge = require('../utils/calculateAge');
 
+const jwtSecret = () => {
+  if (process.env.JWT_SECRET) return process.env.JWT_SECRET;
+  if (process.env.NODE_ENV === 'production') throw new Error('JWT_SECRET must be configured');
+  return 'finaura_jwt_secret_key_12345_dev';
+};
+
 // Generate JWT Token
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'finaura_jwt_secret_key_12345_dev', {
+  return jwt.sign({ id }, jwtSecret(), {
     expiresIn: '30d',
   });
 };

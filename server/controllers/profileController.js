@@ -1,5 +1,9 @@
 const FinancialProfile = require('../models/FinancialProfile');
 const { questions, calculateConfidence } = require('../utils/calculateConfidence');
+const Goal = require('../models/Goal');
+const Portfolio = require('../models/Portfolio');
+const ConsolidatedPortfolio = require('../models/ConsolidatedPortfolio');
+const { buildRiskProfile } = require('../utils/riskProfile');
 
 /**
  * @desc    Get user financial profile
@@ -8,14 +12,19 @@ const { questions, calculateConfidence } = require('../utils/calculateConfidence
  */
 const getProfile = async (req, res, next) => {
   try {
-    const profile = await FinancialProfile.findOne({ userId: req.user._id });
+    const profile = await FinancialProfile.findOne({ userId: req.user._id }).lean();
     
     if (!profile) {
       // Return a skeleton profile to indicate assessment is needed
       return res.status(200).json({ assessmentCompleted: false });
     }
 
-    res.status(200).json(profile);
+    const [goals, portfolio, consolidated] = await Promise.all([
+      Goal.find({ userId: req.user._id }).lean(),
+      Portfolio.findOne({ userId: req.user._id }).populate('holdings.assetId').lean(),
+      ConsolidatedPortfolio.find({ userId: req.user._id }).lean(),
+    ]);
+    res.status(200).json({ ...profile, riskProfile: buildRiskProfile({ profile, goals, portfolio, consolidated }) });
   } catch (error) {
     next(error);
   }
