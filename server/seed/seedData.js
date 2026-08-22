@@ -38,12 +38,12 @@ const seedDatabase = async () => {
     const testUser = await User.create({
       name: 'FinAura Learner',
       email: 'user@finaura.com',
-      password: 'password123',
+      password: 'FinAuraPass123!',
       dateOfBirth: new Date('2005-01-01'),
       role: 'USER',
       language: 'en',
     });
-    console.log(`Test user seeded: ${testUser.email} (password: password123)`);
+    console.log(`Test user seeded: ${testUser.email} (password: FinAuraPass123!)`);
 
     // 2. Seed 10 badges
     const badgesData = [
@@ -90,7 +90,7 @@ const seedDatabase = async () => {
       const user = await User.create({
         name: m.name,
         email: m.email,
-        password: 'mentorpassword123',
+        password: 'FinAuraMentor123!',
         dateOfBirth: new Date('1985-05-05'),
         role: 'MENTOR',
       });

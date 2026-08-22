@@ -7,6 +7,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please add a name'],
       trim: true,
+      minlength: [2, 'Name must be at least 2 characters'],
+      maxlength: [50, 'Name cannot exceed 50 characters'],
+      validate: {
+        validator: function (v) {
+          return /^[a-zA-Z\s'\-\.]+$/.test(v);
+        },
+        message: 'Name can only contain letters, spaces, hyphens, apostrophes, and periods',
+      },
     },
     email: {
       type: String,
@@ -22,7 +30,13 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: [true, 'Please add a password'],
-      minlength: [6, 'Password must be at least 6 characters'],
+      minlength: [8, 'Password must be at least 8 characters'],
+      validate: {
+        validator: function (v) {
+          return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/.test(v);
+        },
+        message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+      },
     },
     dateOfBirth: {
       type: Date,

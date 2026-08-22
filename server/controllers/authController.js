@@ -23,6 +23,28 @@ const registerUser = async (req, res, next) => {
       throw new Error('Please fill in all required fields');
     }
 
+    // Validate Name constraints
+    const trimmedName = name.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 50) {
+      res.status(400);
+      throw new Error('Name must be between 2 and 50 characters');
+    }
+    if (!/^[a-zA-Z\s'\-\.]+$/.test(trimmedName)) {
+      res.status(400);
+      throw new Error('Name can only contain letters, spaces, hyphens, apostrophes, and periods');
+    }
+
+    // Validate Password constraints
+    if (password.length < 8) {
+      res.status(400);
+      throw new Error('Password must be at least 8 characters');
+    }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      res.status(400);
+      throw new Error('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+    }
+
     // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
