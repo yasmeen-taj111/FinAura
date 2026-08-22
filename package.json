@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Financial Confidence & Virtual Investment Learning Platform for young Indians",
   "scripts": {
+    "start": "node server/server.js",
     "postinstall": "npm install --prefix server && npm install --prefix client",
+    "build": "npm run build --prefix client",
     "seed": "npm run seed --prefix server",
     "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
   },

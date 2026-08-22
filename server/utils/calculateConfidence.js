@@ -101,6 +101,17 @@ const questions = [
       { text: 'Pay essential bills/obligations, spend rest, save remainder.', score: 60 },
       { text: 'Instantly allocate 20%+ to savings and investments first, then budget the rest.', score: 100 }
     ]
+  },
+  {
+    id: 'Q11',
+    category: 'riskTolerance',
+    text: 'If a long-term investment temporarily fell 20%, what would you be most comfortable doing?',
+    options: [
+      { text: 'Move to safer options immediately, even if that locks in a loss.', score: 20 },
+      { text: 'Reduce some exposure because the drop would feel uncomfortable.', score: 45 },
+      { text: 'Stay invested if my plan and timeline have not changed.', score: 70 },
+      { text: 'Stay invested and consider adding gradually, knowing losses are possible.', score: 90 }
+    ]
   }
 ];
 
@@ -122,8 +133,8 @@ const calculateConfidence = (userAnswers = []) => {
   userAnswers.forEach((ans) => {
     const questionObj = questions.find((q) => q.id === ans.questionId);
     if (questionObj && questionObj.options[ans.selectedOption]) {
-      const optionVal = questionObj.options[ans.selectedOption];
-      categoryScores[questionObj.category].push(optionVal.score);
+    const optionVal = questionObj.options[ans.selectedOption];
+    if (categoryScores[questionObj.category]) categoryScores[questionObj.category].push(optionVal.score);
     }
   });
 

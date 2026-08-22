@@ -29,6 +29,10 @@ api.interceptors.response.use(
     if (error.code === 'ECONNABORTED') {
       error.userMessage = 'The server is taking too long to respond. Please try again.';
     }
+    if (error.response?.status === 401 && !error.config?.url?.startsWith('/auth/')) {
+      localStorage.removeItem('token');
+      if (window.location.pathname !== '/login') window.location.assign('/login');
+    }
     return Promise.reject(error);
   }
 );

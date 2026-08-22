@@ -6,6 +6,9 @@ const connectDB = async () => {
 };
 
 const startServer = async () => {
+  if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET must be set in production');
+  }
   // Connect to Database
   await connectDB();
 
@@ -21,6 +24,13 @@ const startServer = async () => {
     // Close server & exit process
     server.close(() => process.exit(1));
   });
+
+  const shutdown = (signal) => {
+    console.log(`${signal} received. Closing server gracefully.`);
+    server.close(() => process.exit(0));
+  };
+  process.once('SIGTERM', () => shutdown('SIGTERM'));
+  process.once('SIGINT', () => shutdown('SIGINT'));
 };
 
 startServer();

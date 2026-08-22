@@ -16,10 +16,11 @@ import Mentors from './pages/Mentors';
 import Planning from './pages/Planning';
 import Profile from './pages/Profile';
 import Assistant from './pages/Assistant';
+import AppErrorBoundary from './components/AppErrorBoundary';
 
 function App() {
   return (
-    <Router>
+    <AppErrorBoundary><Router>
       <AuthProvider>
         <Routes>
           {/* Public routes */}
@@ -134,7 +135,7 @@ function App() {
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>
-    </Router>
+    </Router></AppErrorBoundary>
   );
 }
 

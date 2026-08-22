@@ -642,6 +642,7 @@ const Profile = () => {
   const overallReturn = portfolio?.overallGainLoss || 0;
   const overallReturnPct = portfolio?.overallGainLossPercent || 0;
   const earnedBadgesCount = (badges || []).filter(b => b.earned).length;
+  const riskProfile = profile?.riskProfile;
 
   return (
     <div className="page-shell px-5 py-8 md:px-8 lg:px-12 lg:py-10">
@@ -895,6 +896,28 @@ const Profile = () => {
                     <span className="text-brand-muted">Overall Diagnostics score:</span>
                     <strong className="text-brand-primary">{scoreOverall} / 100</strong>
                   </div>
+                </div>
+
+                {/* Dynamic Risk Profile */}
+                <div className="surface-card p-6 lg:col-span-3">
+                  {riskProfile ? (
+                    <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-center">
+                      <div className="grid h-28 w-28 place-items-center rounded-full border-8 border-brand-light bg-brand-primary text-center text-white shadow-card">
+                        <div><p className="text-3xl font-bold leading-none">{riskProfile.score}</p><p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/75">Risk fit</p></div>
+                      </div>
+                      <div>
+                        <div className="flex flex-wrap items-center gap-2"><p className="text-sm font-bold uppercase tracking-wider text-brand-ink">Your investment risk profile</p><span className="rounded-full bg-brand-light px-2.5 py-1 text-[10px] font-bold text-brand-primary">{riskProfile.band}</span></div>
+                        <p className="mt-2 text-sm leading-6 text-brand-muted">{riskProfile.allocationGuide}</p>
+                        <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                          {[['Tolerance', riskProfile.tolerance], ['Capacity', riskProfile.capacity], ['Goal horizon', riskProfile.horizon], ['Current portfolio', riskProfile.portfolioRisk ?? '—']].map(([label, value]) => <div key={label} className="rounded-xl bg-brand-bg p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-brand-muted">{label}</p><p className="mt-1 text-lg font-bold text-brand-ink">{value}{typeof value === 'number' ? ' / 100' : ''}</p></div>)}
+                        </div>
+                        {riskProfile.constraints?.map((constraint) => <p key={constraint} className="mt-3 rounded-lg bg-brand-gold/10 px-3 py-2 text-xs leading-5 text-brand-ink">{constraint}</p>)}
+                        <p className="mt-3 text-[10px] leading-4 text-brand-muted">{riskProfile.disclaimer}</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-sm font-bold uppercase tracking-wider text-brand-ink">Your investment risk profile</p><p className="mt-2 text-sm text-brand-muted">Complete the assessment to combine your tolerance, financial capacity, and goal horizon into a risk profile.</p></div><Link to="/assessment" className="shrink-0 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-bold text-white">Start assessment</Link></div>
+                  )}
                 </div>
 
               </motion.div>

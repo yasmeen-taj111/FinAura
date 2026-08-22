@@ -310,7 +310,7 @@ const Assessment = () => {
               </div>
               <h2 className="text-2xl font-bold text-white mb-3">All Done!</h2>
               <p className="text-brand-muted text-sm mb-8 leading-relaxed max-w-sm mx-auto">
-                Your questionnaire outputs are ready for analysis. Our engine will calculate your baseline scores across five financial areas.
+                Your questionnaire outputs are ready for analysis. We’ll calculate your financial confidence and an educational investment risk profile from your tolerance, capacity, and goals.
               </p>
 
               <div className="space-y-4">
@@ -326,7 +326,7 @@ const Assessment = () => {
                       Analyzing responses...
                     </>
                   ) : (
-                    'Calculate My Confidence Score'
+                    'Calculate My Profile'
                   )}
                 </button>
               </div>

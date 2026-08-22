@@ -2,6 +2,7 @@ const FinancialProfile = require('../models/FinancialProfile');
 const Portfolio = require('../models/Portfolio');
 const Goal = require('../models/Goal');
 const ConsolidatedPortfolio = require('../models/ConsolidatedPortfolio');
+const { buildRiskProfile } = require('../utils/riskProfile');
 
 const isUsableApiKey = (key) => Boolean(key && key !== 'mock_key');
 
@@ -287,6 +288,7 @@ const chatWithAssistant = async (req, res, next) => {
     const savingsRate = profile?.monthlyIncome > 0
       ? Math.round((profile.monthlySavings / profile.monthlyIncome) * 100)
       : 0;
+    const riskProfile = buildRiskProfile({ profile, goals, portfolio, consolidated });
 
     const goalsText = goals.length > 0
       ? goals.map((g, idx) => `${idx+1}. Goal Name: ${g.name}, Target: ₹${g.targetAmount}, Current: ₹${g.currentSavings}, Timeline: ${g.timeline} months, Category: ${g.category}`).join('\n')
@@ -322,6 +324,7 @@ User Details:
 - Net Monthly Income: ₹${profile?.monthlyIncome || 0}
 - Essential Expenses: ₹${profile?.monthlyExpenses || 0}
 - Monthly Savings: ₹${profile?.monthlySavings || 0} (Actual Savings Rate: ${savingsRate}%)
+- Dynamic Risk Profile: ${riskProfile ? `${riskProfile.band} (${riskProfile.score}/100); tolerance ${riskProfile.tolerance}/100, capacity ${riskProfile.capacity}/100, horizon ${riskProfile.horizon}/100` : 'Not yet assessed'}
 
 Active Goals:
 ${goalsText}
