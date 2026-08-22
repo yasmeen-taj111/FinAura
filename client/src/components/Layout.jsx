@@ -160,21 +160,23 @@ const Layout = ({ children }) => {
         </div>
       </main>
 
-      <footer className="border-t border-brand-border bg-white lg:pl-64">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-6">
-          <div className="flex items-center gap-3 whitespace-nowrap">
-            <p className="font-semibold text-brand-ink">
-              Fin<span className="text-brand-primary">Aura</span>
+      <footer className="w-full border-t border-brand-border bg-white lg:pl-64">
+        <div className="w-full px-4 py-4 sm:px-6">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3 whitespace-nowrap">
+              <p className="text-sm font-semibold text-brand-ink">
+                Fin<span className="text-brand-primary">Aura</span>
+              </p>
+
+              <span className="text-sm text-brand-muted">
+                Building financial confidence, one step at a time.
+              </span>
+            </div>
+
+            <p className="text-xs text-brand-muted sm:whitespace-nowrap">
+              © 2026 FinAura. All rights reserved.
             </p>
-
-            <span className="text-sm text-brand-muted">
-              Building financial confidence, one step at a time.
-            </span>
           </div>
-
-          <p className="whitespace-nowrap text-xs text-brand-muted">
-            © 2026 FinAura. All rights reserved.
-          </p>
         </div>
       </footer>
     </div>
