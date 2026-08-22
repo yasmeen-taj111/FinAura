@@ -654,7 +654,7 @@ const Profile = () => {
             <p className="eyebrow">Production Dashboard</p>
             <h1 className="mt-2 font-serif text-4xl text-brand-ink md:text-5xl">My Profile & Portfolio</h1>
             <p className="mt-3 text-sm leading-6 text-brand-muted">
-              Analyze asset allocation, integrate external broker statements, compute diversification health indexes, and consult the AI advisor.
+              Analyze asset allocation, integrate external broker statements, compute diversification health indexes and consult the AI advisor.
             </p>
           </div>
 
@@ -916,7 +916,7 @@ const Profile = () => {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-sm font-bold uppercase tracking-wider text-brand-ink">Your investment risk profile</p><p className="mt-2 text-sm text-brand-muted">Complete the assessment to combine your tolerance, financial capacity, and goal horizon into a risk profile.</p></div><Link to="/assessment" className="shrink-0 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-bold text-white">Start assessment</Link></div>
+                    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-sm font-bold uppercase tracking-wider text-brand-ink">Your investment risk profile</p><p className="mt-2 text-sm text-brand-muted">Complete the assessment to combine your tolerance, financial capacity and goal horizon into a risk profile.</p></div><Link to="/assessment" className="shrink-0 rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-bold text-white">Start assessment</Link></div>
                   )}
                 </div>
 
