@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { CalendarDays } from 'lucide-react';
 
@@ -50,14 +50,18 @@ const AppHeader = () => {
           <span>{today}</span>
         </div>
 
-        <div className="flex items-center gap-2 bg-brand-light rounded-xl px-3 py-1.5">
+        <Link
+          to="/profile"
+          aria-label="Open my profile"
+          className="flex items-center gap-2 rounded-xl bg-brand-light px-3 py-1.5 transition-colors hover:bg-brand-sage/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+        >
           <div className="grid h-7 w-7 place-items-center rounded-full bg-brand-primary text-[11px] font-bold text-white select-none">
             {initials}
           </div>
           <span className="text-sm font-semibold text-brand-ink">
             {user?.name?.split(' ')[0] ?? 'User'}
           </span>
-        </div>
+        </Link>
       </div>
     </header>
   );

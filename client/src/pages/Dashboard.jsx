@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, BookOpen, BrainCircuit, ChartNoAxesCombined, CircleAlert, Landmark, Sparkles, Target, Wallet } from 'lucide-react';
+import { ArrowRight, BookOpen, BrainCircuit, ChartNoAxesCombined, CircleAlert, Landmark, Sparkles, Target } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
