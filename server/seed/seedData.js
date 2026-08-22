@@ -10,6 +10,7 @@ const Badge = require('../models/Badge');
 const Resource = require('../models/Resource');
 const Mentor = require('../models/Mentor');
 const Goal = require('../models/Goal');
+const detailedContent = require('./detailedContent');
 
 const seedDatabase = async () => {
   try {
@@ -164,7 +165,7 @@ const seedDatabase = async () => {
         const lesson = await Lesson.create({
           moduleId: mod._id,
           title: `Lesson ${order}: Core Concepts of ${mod.title}`,
-          content: `This is the deep-dive lesson material for ${mod.title}. In this segment, we focus on understanding basic transaction mechanics, tracking income, categorizing cash flows, and avoiding common youth debt traps in India.`,
+          content: detailedContent[mod.title] || `This is the deep-dive lesson material for ${mod.title}. In this segment, we focus on understanding basic transaction mechanics, tracking income, categorizing cash flows, and avoiding common youth debt traps in India.`,
           order: j,
           xpReward: 50,
         });
@@ -384,8 +385,84 @@ const seedDatabase = async () => {
       }
     }
 
-    // Let's add additional quiz questions to hit the "50+ quiz questions" requirement.
-    // We already have 30 lessons * 2 questions = 60 questions! That exceeds the target of 50.
+    // 8. Extended A-to-Z curriculum: deliberately structured from foundational concepts
+    // to markets, analysis, protection, tax, and long-term planning.
+    const extendedCurriculum = [
+      { title: 'Saving, Banking & Debt Foundations', category: 'Saving', difficulty: 'Beginner', video: 'https://investor.sebi.gov.in/inv_aware_edu_videos.html', modules: [
+        ['Bank accounts, UPI & cash flow', 'Learn how savings, current, recurring-deposit and fixed-deposit accounts differ; track inflows and outflows; and treat UPI convenience with the same care as cash.'],
+        ['Credit cards, loans & EMIs', 'Understand principal, interest, tenure, credit utilisation, EMI amortisation, secured versus unsecured debt, and why missed payments can compound quickly.'],
+        ['Emergency funds & insurance', 'Separate an emergency reserve from investment money. Learn the role of health, term life and asset insurance, exclusions, waiting periods and adequate cover.'],
+      ]},
+      { title: 'Stocks, Equity & How Markets Work', category: 'Stocks', difficulty: 'Beginner', video: 'https://zerodha.com/varsity/module/stock-market-basics/', modules: [
+        ['Equity, shares & ownership', 'A share represents fractional ownership in a company. Learn equity versus debt, dividends, voting rights, corporate actions, and why share prices do not equal business quality.'],
+        ['Exchanges, demat & orders', 'Follow the path from a demat account to NSE/BSE, brokers, order books, market and limit orders, settlement, brokerage charges and the risks of acting on tips.'],
+        ['Market cap: large, mid & small cap', 'Market capitalisation equals price multiplied by shares outstanding. Compare large-cap, mid-cap and small-cap companies by size, liquidity and typical volatility—not by guaranteed return.'],
+      ]},
+      { title: 'Mutual Funds, ETFs & SIPs', category: 'Mutual Funds', difficulty: 'Beginner', video: 'https://investor.sebi.gov.in/inv_aware_edu_videos.html', modules: [
+        ['How mutual funds work', 'Learn NAV, units, AUM, expense ratio, fund manager, benchmark, direct versus regular plans and why a fund invests according to its mandate.'],
+        ['Equity, debt, hybrid & index funds', 'Compare broad-market index funds, active funds, debt funds, hybrid funds and ETFs by underlying assets, risk, liquidity, costs and goal suitability.'],
+        ['SIPs, lumpsums & review discipline', 'A SIP is a contribution method, not a product or return guarantee. Learn rupee-cost averaging, mandate dates, step-ups, redemption planning and when to review without chasing returns.'],
+      ]},
+      { title: 'Portfolio Construction & Asset Allocation', category: 'Financial Planning', difficulty: 'Intermediate', video: 'https://zerodha.com/varsity/chapter/personal-finance-review-part-2/', modules: [
+        ['Assets, liabilities & net worth', 'Build a personal balance sheet: list assets you own, liabilities you owe, liquidity, net worth and the difference between income, wealth and cash flow.'],
+        ['Diversification & correlation', 'Diversification means exposure across assets and risk drivers. Learn correlation, concentration risk, rebalancing and why owning many similar stocks is not true diversification.'],
+        ['Goal-based allocation', 'Match money to time horizon, required return, liquidity and ability to absorb loss. Short-term goals generally need stability; long-term goals can tolerate more fluctuation.'],
+      ]},
+      { title: 'Reading Markets: Charts & Candlesticks', category: 'Technical Analysis', difficulty: 'Intermediate', video: 'https://zerodha.com/varsity/module/technical-analysis/', modules: [
+        ['OHLC, line charts & candlesticks', 'Read open, high, low and close. A candlestick summarises price movement for a chosen timeframe; its body and wicks describe the session, not a promise about the next one.'],
+        ['Trends, support, resistance & volume', 'Explore uptrends, downtrends, ranges, support, resistance and volume. Treat these as context for risk planning, not standalone buy or sell signals.'],
+        ['Moving averages & indicators', 'Learn SMA and EMA, moving-average lag, crossovers, RSI and MACD. Indicators simplify historical data but can fail, especially in volatile or sideways markets.'],
+      ]},
+      { title: 'Fundamental Analysis & Company Research', category: 'Markets', difficulty: 'Intermediate', video: 'https://zerodha.com/varsity/module/fundamental-analysis/', modules: [
+        ['Business model & competitive position', 'Start with what the company sells, customers, industry structure, management quality, competition and the risks that could weaken future cash flows.'],
+        ['Financial statements', 'Read the income statement, balance sheet and cash-flow statement together. Revenue growth alone is incomplete without margins, debt, cash generation and capital needs.'],
+        ['Valuation metrics & limits', 'Understand EPS, P/E, P/B, ROE, debt-to-equity and free cash flow. Ratios are context tools: compare a company with its history, peers and business economics.'],
+      ]},
+      { title: 'Taxes, Compliance & Investor Protection', category: 'Tax Basics', difficulty: 'Intermediate', video: 'https://investor.sebi.gov.in/inv_aware_edu_videos.html', modules: [
+        ['Tax documents & basic terms', 'Learn PAN, Form 16, AIS, TDS, tax-saving evidence, financial-year versus assessment-year terms and why records matter. Use a qualified tax professional for personal filing advice.'],
+        ['Investment taxes & records', 'Understand that capital-gains treatment depends on asset type and holding period. Learn to keep contract notes, statements and dates; tax rules can change and should be verified.'],
+        ['KYC, nominations & fraud prevention', 'Learn KYC, nominee updates, two-factor authentication, phishing red flags, unregistered-adviser warnings and how to verify regulated entities before acting.'],
+      ]},
+      { title: 'Long-Term Financial Independence', category: 'Retirement', difficulty: 'Advanced', video: 'https://zerodha.com/varsity/chapter/personal-finance-review-part-2/', modules: [
+        ['Retirement math & inflation', 'Estimate future expenses using inflation assumptions, distinguish nominal from real return, and recognise longevity risk: retirement planning is an ongoing estimate, not a single magic number.'],
+        ['NPS, EPF & retirement buckets', 'Compare the roles of employer retirement benefits, voluntary contributions and diversified personal investments. Check current rules and lock-ins before committing.'],
+        ['Behaviour, reviews & a written plan', 'Create a yearly review: update goals, insurance, nominations, taxes, asset allocation and contribution levels. Avoid reacting to noise or treating historical returns as forecasts.'],
+      ]},
+    ];
+
+    for (const courseData of extendedCurriculum) {
+      const course = await Course.create({
+        title: courseData.title,
+        description: `A practical, structured guide to ${courseData.title.toLowerCase()} for informed decisions—not recommendations.`,
+        category: courseData.category,
+        difficulty: courseData.difficulty,
+        xpReward: 450,
+      });
+      for (let index = 0; index < courseData.modules.length; index++) {
+        const [title, content] = courseData.modules[index];
+        const module = await Module.create({ courseId: course._id, title, description: content.slice(0, 120), order: index + 1 });
+        const lesson = await Lesson.create({
+          moduleId: module._id,
+          title,
+          content: detailedContent[title] || `${content}\n\nLearn: define the key terms in your own words. See: use a real but non-actionable example such as a household budget, a published company annual report, or an index factsheet. Try: use FinAura's virtual lab or calculator before making any real-world decision. Remember: every investment carries risk and historical outcomes do not guarantee future returns.`,
+          order: 1,
+          xpReward: 75,
+          videoUrl: courseData.video,
+          videoTitle: `Watch the ${courseData.title} companion video series`,
+          durationMinutes: 12,
+        });
+        await Quiz.create({
+          lessonId: lesson._id,
+          questions: [
+            { question: `Which approach best matches the lesson “${title}”?`, options: ['Use one fact as a guaranteed investment signal', 'Understand the concept, its limits, and its role in your personal plan', 'Copy a social-media trade immediately', 'Ignore costs and risks'], correctAnswer: 'Understand the concept, its limits, and its role in your personal plan', explanation: 'Strong financial decisions start with context, risk, costs, and personal goals rather than a single signal or tip.' },
+            { question: 'What is the most responsible next step after learning a new financial concept?', options: ['Treat it as personal investment advice', 'Test it against your time horizon, risk capacity and verified information', 'Assume historical returns will repeat', 'Invest money you may need for emergencies'], correctAnswer: 'Test it against your time horizon, risk capacity and verified information', explanation: 'Education helps you ask better questions. Suitability depends on your specific situation, and market outcomes are uncertain.' },
+          ],
+          passingScore: 70,
+          xpReward: 100,
+        });
+        moduleCount++; lessonCount++; quizCount += 2;
+      }
+    }
 
     console.log(`Seeded educational structure:`);
     console.log(`- Courses: ${courses.length}`);

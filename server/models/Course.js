@@ -17,7 +17,8 @@ const courseSchema = new mongoose.Schema(
       enum: [
         'Money Basics', 'Saving', 'Budgeting', 'Investing', 'Risk',
         'Compounding', 'Stocks', 'Mutual Funds', 'Gold', 'FD',
-        'Inflation', 'Tax Basics', 'Financial Psychology'
+        'Inflation', 'Tax Basics', 'Financial Psychology', 'Technical Analysis',
+        'Insurance', 'Retirement', 'Debt', 'Markets', 'Financial Planning'
       ],
     },
     difficulty: {

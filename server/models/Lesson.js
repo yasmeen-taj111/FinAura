@@ -24,6 +24,18 @@ const lessonSchema = new mongoose.Schema(
       type: Number,
       default: 50,
     },
+    videoUrl: {
+      type: String,
+      default: '',
+    },
+    videoTitle: {
+      type: String,
+      default: '',
+    },
+    durationMinutes: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

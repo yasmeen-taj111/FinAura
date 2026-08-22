@@ -6,6 +6,11 @@ const rateLimit = require('express-rate-limit');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
+const learningRoutes = require('./routes/learningRoutes');
+const portfolioRoutes = require('./routes/portfolioRoutes');
+const goalRoutes = require('./routes/goalRoutes');
+const mentorRoutes = require('./routes/mentorRoutes');
+const assistantRoutes = require('./routes/assistantRoutes');
 
 const app = express();
 
@@ -42,6 +47,11 @@ app.use('/api/auth', apiLimiter);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/learning', learningRoutes);
+app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/goals', goalRoutes);
+app.use('/api/mentors', mentorRoutes);
+app.use('/api/assistant', assistantRoutes);
 
 // Base route
 app.get('/', (req, res) => {
