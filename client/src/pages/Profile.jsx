@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
+<<<<<<< HEAD
 import { Link } from 'react-router-dom';
+=======
+import { useLocation, Link } from 'react-router-dom';
+>>>>>>> origin/front
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Shield, Mail, Coins, Landmark, Target, Download,

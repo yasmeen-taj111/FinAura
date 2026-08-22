@@ -414,10 +414,204 @@ const Sandbox = () => {
   }
 
   return (
+<<<<<<< HEAD
     <div className="page-shell px-5 py-8 md:px-8 lg:px-12 lg:py-10">
       <div className="mx-auto max-w-7xl">
         <AnimatePresence>
           {showTour && (
+=======
+    <div className="min-h-screen py-10 px-6 md:px-12 relative overflow-hidden bg-brand-bg text-slate-100">
+      {/* Background decorations */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-brand-primary/5 rounded-full filter blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-secondary/5 rounded-full filter blur-[120px] pointer-events-none"></div>
+
+      {/* Header */}
+      <div className="max-w-7xl mx-auto mb-10 z-10 relative flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <span className="text-[10px] font-bold text-brand-secondary uppercase tracking-widest block mb-2">VIRTUAL TRADING ENVIRONMENT</span>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2">Investment Learning Sandbox</h1>
+          <p className="text-brand-muted text-xs md:text-sm max-w-xl leading-relaxed">
+            Practice real trading decisions with zero risk. Use ₹1,00,000 virtual balance to buy and sell stocks, index funds, bonds, and test portfolio survival against simulated crashes.
+          </p>
+        </div>
+
+        {/* Action controls */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handleSimulateMarket('NEUTRAL')}
+            disabled={simulating}
+            className="flex items-center space-x-1.5 px-4 py-2.5 bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-bold rounded-xl transition-all disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Regular Fluctuation</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Notification Toast for Simulations */}
+      {simMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-7xl mx-auto p-4 bg-indigo-500/10 border border-brand-primary/25 rounded-2xl mb-8 flex items-center justify-between gap-4 text-xs font-medium text-slate-200"
+        >
+          <div className="flex items-center space-x-2.5">
+            <AlertTriangle className="w-4.5 h-4.5 text-brand-secondary animate-pulse" />
+            <span>{simMessage}</span>
+          </div>
+          <button onClick={() => setSimMessage('')} className="text-[10px] text-slate-500 hover:text-white font-bold">Dismiss</button>
+        </motion.div>
+      )}
+
+      {/* Grid: Stats & Simulator Triggers */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 z-10 relative">
+        
+        {/* Core Wallet Stat */}
+        <div className="glass-card rounded-3xl p-6 border border-white/5 flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-[3px] bg-emerald-500"></div>
+          <div>
+            <span className="text-[10px] font-bold text-brand-muted uppercase tracking-wider block">Total Net Worth</span>
+            <h2 className="text-3xl font-extrabold text-white mt-1.5">₹{netWorth.toLocaleString()}</h2>
+            <div className="flex items-center space-x-1.5 mt-2.5">
+              {portfolio?.overallGainLoss >= 0 ? (
+                <span className="text-xs text-brand-success font-bold flex items-center bg-brand-success/10 px-2.5 py-0.5 rounded-lg border border-brand-success/15">
+                  <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
+                  +{portfolio?.overallGainLossPercent.toFixed(2)}% (₹{portfolio?.overallGainLoss.toLocaleString()})
+                </span>
+              ) : (
+                <span className="text-xs text-brand-danger font-bold flex items-center bg-brand-danger/10 px-2.5 py-0.5 rounded-lg border border-brand-danger/15">
+                  <ArrowDownRight className="w-3.5 h-3.5 mr-0.5" />
+                  {portfolio?.overallGainLossPercent.toFixed(2)}% (₹{Math.abs(portfolio?.overallGainLoss).toLocaleString()})
+                </span>
+              )}
+              <span className="text-[10px] text-brand-muted font-medium">Return on Cost</span>
+            </div>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
+            <div>
+              <span className="text-brand-muted text-[10px] block uppercase">Free Cash Balance</span>
+              <span className="text-slate-200">₹{cashBalance.toLocaleString()}</span>
+            </div>
+            <div>
+              <span className="text-brand-muted text-[10px] block uppercase">Value of Holdings</span>
+              <span className="text-slate-200">₹{totalAssetsValue.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Portfolio asset allocation breakdown bar */}
+        <div className="glass-card rounded-3xl p-6 border border-white/5 flex flex-col justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-white mb-1">Asset Allocation</h3>
+            <p className="text-brand-muted text-[10px] mb-5">Diversification percentage based on valuation</p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Allocation Stack Bar */}
+            <div className="w-full h-4 bg-slate-900 rounded-full flex overflow-hidden border border-white/5">
+              {allocationBreakdown.map((item, idx) => {
+                const percent = (item.value / netWorth) * 100;
+                if (percent <= 0) return null;
+                return (
+                  <div
+                    key={idx}
+                    className={`h-full ${item.color}`}
+                    style={{ width: `${percent}%` }}
+                    title={`${item.name}: ${percent.toFixed(1)}%`}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Legends list */}
+            <div className="flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-semibold text-slate-300">
+              {allocationBreakdown.map((item, idx) => {
+                const percent = (item.value / netWorth) * 100;
+                if (percent <= 0) return null;
+                return (
+                  <div key={idx} className="flex items-center space-x-1.5">
+                    <div className={`w-2.5 h-2.5 rounded ${item.color}`} />
+                    <span>{item.name} ({percent.toFixed(0)}%)</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Scenario Simulator triggers */}
+        <div className="glass-card rounded-3xl p-6 border border-white/5 flex flex-col justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-white mb-1">Market Scenario Injector</h3>
+            <p className="text-brand-muted text-[10px] mb-4">Simulate financial cycles and test portfolio resistance</p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              onClick={() => handleSimulateMarket('BULL_RUN')}
+              disabled={simulating}
+              className="flex flex-col items-center justify-center p-3 bg-emerald-500/10 border border-brand-success/15 hover:bg-emerald-500/25 rounded-2xl transition-all disabled:opacity-50 cursor-pointer group"
+            >
+              <span className="text-xl group-hover:scale-110 transition-transform">📈</span>
+              <span className="text-[10px] font-bold text-brand-success mt-1.5">Bull Run</span>
+            </button>
+
+            <button
+              onClick={() => handleSimulateMarket('BEAR_MARKET')}
+              disabled={simulating}
+              className="flex flex-col items-center justify-center p-3 bg-amber-500/10 border border-brand-warning/15 hover:bg-amber-500/25 rounded-2xl transition-all disabled:opacity-50 cursor-pointer group"
+            >
+              <span className="text-xl group-hover:scale-110 transition-transform">📉</span>
+              <span className="text-[10px] font-bold text-brand-warning mt-1.5">Bear Cycle</span>
+            </button>
+
+            <button
+              onClick={() => handleSimulateMarket('FLASH_CRASH')}
+              disabled={simulating}
+              className="flex flex-col items-center justify-center p-3 bg-rose-500/10 border border-brand-danger/15 hover:bg-rose-500/25 rounded-2xl transition-all disabled:opacity-50 cursor-pointer group"
+            >
+              <span className="text-xl group-hover:scale-110 transition-transform">💥</span>
+              <span className="text-[10px] font-bold text-brand-danger mt-1.5">Flash Crash</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Tabs */}
+      <div className="max-w-7xl mx-auto flex space-x-2 border-b border-white/5 mb-8 z-10 relative">
+        {[
+          { id: 'portfolio', label: 'My Holdings', icon: Landmark },
+          { id: 'market', label: 'Market Tickers', icon: Compass },
+          { id: 'transactions', label: 'Transaction Logs', icon: History }
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const active = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-bold text-sm transition-all cursor-pointer ${
+                active
+                  ? 'border-brand-secondary text-brand-secondary'
+                  : 'border-transparent text-brand-muted hover:text-brand-ink'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Main View Area */}
+      <div className="max-w-7xl mx-auto z-10 relative">
+        <AnimatePresence mode="wait">
+          
+          {/* TAB 1: PORTFOLIO HOLDINGS */}
+          {activeTab === 'portfolio' && (
+>>>>>>> origin/front
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -611,12 +805,21 @@ const Sandbox = () => {
                 const active = activeTab === tab.id;
                 return (
                   <button
+<<<<<<< HEAD
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center space-x-2 pb-3 pt-2 px-4 border-b-2 font-bold text-xs md:text-sm transition-all cursor-pointer border-0 ${
                       active
                         ? 'border-brand-primary text-brand-primary bg-transparent'
                         : 'border-transparent text-brand-muted hover:text-brand-ink bg-transparent'
+=======
+                    key={type.value}
+                    onClick={() => setMarketFilter(type.value)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      marketFilter === type.value
+                        ? 'bg-gradient-to-tr from-brand-primary to-brand-secondary text-white shadow-glow-primary'
+                         : 'text-white/80 hover:text-white hover:bg-white/5'
+>>>>>>> origin/front
                     }`}
                   >
                     <Icon className="w-4 h-4" />
