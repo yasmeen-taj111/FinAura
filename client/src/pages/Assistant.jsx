@@ -5,20 +5,43 @@ import api from '../services/api';
 const quickPrompts = ['Am I saving enough each month?', 'Explain the risks of a small-cap SIP.', 'Review my portfolio allocation.', 'Fact-check this social-media stock tip.'];
 const welcomeMessage = () => ({ id: 'welcome', role: 'assistant', source: 'FinAura guide', text: 'Hi, I’m your FinAura assistant. Ask me about your budget, financial goals, virtual portfolio, or investment risk.', timestamp: new Date() });
 
-const inlineText = (text) => text.split(/(\*\*[^*]+\*\*)/g).map((part, index) => part.startsWith('**') && part.endsWith('**')
-  ? <strong key={index} className="font-bold">{part.slice(2, -2)}</strong>
-  : part);
+const inlineText = (text) => text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g).map((part, index) => {
+  if (part.startsWith('**') && part.endsWith('**')) return <strong key={index} className="font-bold">{part.slice(2, -2)}</strong>;
+  if (part.startsWith('*') && part.endsWith('*')) return <em key={index}>{part.slice(1, -1)}</em>;
+  if (part.startsWith('`') && part.endsWith('`')) return <code key={index} className="rounded bg-brand-light px-1 py-0.5 text-xs">{part.slice(1, -1)}</code>;
+  return part;
+});
+
+const tableCells = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
+const isTableDivider = (line) => /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/.test(line.trim());
 
 const MessageBody = ({ text, isUser }) => {
   if (isUser) return <p className="whitespace-pre-wrap" style={{ color: '#ffffff' }}>{text}</p>;
-  return <div className="space-y-2.5">{text.split('\n').map((line, index) => {
+  const lines = text.split('\n');
+  const blocks = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
     const trimmed = line.trim();
-    if (!trimmed) return null;
-    if (/^#{1,3}\s/.test(trimmed)) return <h3 key={index} className="pt-1 text-base font-bold text-brand-primary">{inlineText(trimmed.replace(/^#{1,3}\s*/, ''))}</h3>;
-    if (/^[-*]\s/.test(trimmed)) return <div key={index} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-primary" /><p>{inlineText(trimmed.replace(/^[-*]\s*/, ''))}</p></div>;
-    if (/^\d+\.\s/.test(trimmed)) return <div key={index} className="flex gap-2"><span className="font-bold text-brand-primary">{trimmed.match(/^\d+\./)[0]}</span><p>{inlineText(trimmed.replace(/^\d+\.\s*/, ''))}</p></div>;
-    return <p key={index}>{inlineText(trimmed)}</p>;
-  })}</div>;
+    // A Markdown table begins with a header followed by the --- separator row.
+    if (trimmed.includes('|') && isTableDivider(lines[index + 1] || '')) {
+      const headers = tableCells(line);
+      const rows = [];
+      index += 2;
+      while (index < lines.length && lines[index].trim().includes('|')) {
+        rows.push(tableCells(lines[index]));
+        index += 1;
+      }
+      index -= 1;
+      blocks.push(<div key={`table-${index}`} className="overflow-x-auto rounded-xl border border-brand-border"><table className="min-w-full border-collapse text-left text-xs leading-5"><thead className="bg-brand-light text-brand-primary"><tr>{headers.map((header, cellIndex) => <th key={cellIndex} className="whitespace-nowrap px-3 py-2 font-bold">{inlineText(header)}</th>)}</tr></thead><tbody>{rows.map((row, rowIndex) => <tr key={rowIndex} className="border-t border-brand-border align-top">{headers.map((_, cellIndex) => <td key={cellIndex} className="px-3 py-2">{inlineText(row[cellIndex] || '')}</td>)}</tr>)}</tbody></table></div>);
+      continue;
+    }
+    if (!trimmed) continue;
+    if (/^#{1,3}\s/.test(trimmed)) blocks.push(<h3 key={index} className="pt-1 text-base font-bold text-brand-primary">{inlineText(trimmed.replace(/^#{1,3}\s*/, ''))}</h3>);
+    else if (/^[-*]\s/.test(trimmed)) blocks.push(<div key={index} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-primary" /><p>{inlineText(trimmed.replace(/^[-*]\s*/, ''))}</p></div>);
+    else if (/^\d+\.\s/.test(trimmed)) blocks.push(<div key={index} className="flex gap-2"><span className="font-bold text-brand-primary">{trimmed.match(/^\d+\./)[0]}</span><p>{inlineText(trimmed.replace(/^\d+\.\s*/, ''))}</p></div>);
+    else blocks.push(<p key={index}>{inlineText(trimmed)}</p>);
+  }
+  return <div className="space-y-2.5">{blocks}</div>;
 };
 
 const Assistant = () => {
