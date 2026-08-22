@@ -11,6 +11,10 @@ const {
   bulkConsolidateHoldings,
   deleteConsolidatedHolding,
   clearConsolidatedHoldings,
+  getSips,
+  createSip,
+  cancelSip,
+  processMonthlySips
 } = require('../controllers/portfolioController');
 const { protect } = require('../middleware/authMiddleware');
 
@@ -20,6 +24,12 @@ router.get('/assets', protect, getAssets);
 router.post('/trade', protect, executeTrade);
 router.get('/transactions', protect, getTransactions);
 router.post('/simulate-market', protect, simulateMarket);
+
+// New virtual SIP routes
+router.get('/sips', protect, getSips);
+router.post('/sips', protect, createSip);
+router.post('/sips/process-month', protect, processMonthlySips);
+router.delete('/sips/:id', protect, cancelSip);
 
 // New consolidated portfolio routes
 router.get('/consolidated', protect, getConsolidatedPortfolio);

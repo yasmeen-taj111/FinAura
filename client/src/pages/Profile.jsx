@@ -271,6 +271,60 @@ const Profile = () => {
     ];
   }, [profile]);
 
+  // Dynamically tailored AI Advisor preset prompts based on weakest diagnostic scores
+  const advisorSuggestions = useMemo(() => {
+    const defaultSuggestions = [
+      { label: "Check SIP Drawdown Risk", text: "Evaluate the risks of starting a Small-Cap or Sectoral mutual fund SIP and verify my risk alignment." },
+      { label: "Audit Multi-Broker Assets", text: "Analyze my consolidated asset allocation and platform concentration metrics." },
+      { label: "Fact-Check Social Hype", text: "Validate this social media stock recommendation: Buy SUZLON ENERGY target 120 INR in 30 days!" },
+      { label: "Assess Savings Compliance", text: "Evaluate my monthly budgeting and savings rate against standard personal finance rules." }
+    ];
+
+    if (!profile?.scores) return defaultSuggestions;
+
+    const categories = [
+      { key: 'moneyManagement', label: 'Money Basics' },
+      { key: 'investingKnowledge', label: 'Investing' },
+      { key: 'riskUnderstanding', label: 'Risk' },
+      { key: 'goalPlanning', label: 'Goal Planning' },
+      { key: 'financialBehavior', label: 'Financial Habits' }
+    ];
+
+    let weakest = categories[0];
+    categories.forEach(cat => {
+      if ((profile.scores[cat.key] || 0) < (profile.scores[weakest.key] || 0)) {
+        weakest = cat;
+      }
+    });
+
+    if ((profile.scores[weakest.key] || 0) === 0) {
+      return defaultSuggestions;
+    }
+
+    const tailored = [];
+    if (weakest.key === 'moneyManagement') {
+      tailored.push({ label: "💡 Optimize My Budget Allocation", text: "Based on my income and expenses, explain how I can structure my money using the 50/30/20 rule." });
+      tailored.push({ label: "🛡️ Emergency Fund Requirements", text: "How should I structure my emergency safety fund? Suggest liquid instruments for parking cash." });
+    } else if (weakest.key === 'investingKnowledge') {
+      tailored.push({ label: "📈 Explain Rupee Cost Averaging", text: "How does SIP rupee-cost averaging help first-time investors who don't understand price movements?" });
+      tailored.push({ label: "⚖️ Equity vs Debt vs FDs", text: "Explain the difference in expected returns and security when choosing between stocks, bonds, mutual funds, and fixed deposits." });
+    } else if (weakest.key === 'riskUnderstanding') {
+      tailored.push({ label: "⚠️ Evaluate Small-Cap SIP Risk", text: "Verify if starting a Small-Cap equity SIP is suitable given my risk profiling score." });
+      tailored.push({ label: "📉 Diversification Health Index", text: "Analyze my portfolio's diversification index score and give me suggestions to protect against market flash crashes." });
+    } else if (weakest.key === 'goalPlanning') {
+      tailored.push({ label: "🎯 Set a Multi-Year Target Goal", text: "How should I allocate savings toward near-term goals (like buying a laptop) vs long-term retirement goals?" });
+      tailored.push({ label: "🚩 Review Goal Status Under Bear Run", text: "Explain how goals might fall behind schedule if I invest short-term savings in volatile stocks." });
+    } else {
+      tailored.push({ label: "🧠 Avoid Herd FOMO Traps", text: "How can I avoid making emotional stock purchases based on social media hype or tips?" });
+      tailored.push({ label: "📊 Audit Monthly Savings Rate", text: "Evaluate if my financial habits are sound relative to my savings compliance." });
+    }
+
+    tailored.push({ label: "🔍 Fact-Check Social Hype", text: "Validate this social media stock recommendation: Buy SUZLON ENERGY target 120 INR in 30 days!" });
+    tailored.push({ label: "📂 Audit Multi-Broker Assets", text: "Analyze my consolidated asset allocation and platform concentration metrics." });
+
+    return tailored.slice(0, 4);
+  }, [profile]);
+
   // Unified Diversification Index calculation (0 to 100)
   const diversificationIndex = useMemo(() => {
     const sandboxAssets = portfolio?.holdings?.length || 0;
@@ -1445,17 +1499,12 @@ const Profile = () => {
 
                 {/* Suggestions bubble rows */}
                 <div className="px-6 py-2 border-t border-brand-border bg-white flex flex-wrap gap-2 overflow-x-auto">
-                  {[
-                    { label: "Check SIP Drawdown Risk", text: "Evaluate the risks of starting a Small-Cap or Sectoral mutual fund SIP and verify my risk alignment." },
-                    { label: "Audit Multi-Broker Assets", text: "Analyze my consolidated asset allocation and platform concentration metrics." },
-                    { label: "Fact-Check Social Hype", text: "Validate this social media stock recommendation: Buy SUZLON ENERGY target 120 INR in 30 days!" },
-                    { label: "Assess Savings Compliance", text: "Evaluate my monthly budgeting and savings rate against standard personal finance rules." }
-                  ].map((sug, idx) => (
+                  {advisorSuggestions.map((sug, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSendMessage(sug.text)}
                       disabled={chatLoading}
-                      className="px-3 py-1.5 rounded-full border border-brand-border text-[10px] font-bold text-brand-primary hover:bg-brand-light transition-all cursor-pointer bg-white"
+                      className="px-3 py-1.5 rounded-full border border-brand-border text-[10px] font-bold text-brand-primary hover:bg-brand-light transition-all cursor-pointer bg-white animate-fade-in"
                     >
                       {sug.label}
                     </button>

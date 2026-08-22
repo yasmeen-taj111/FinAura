@@ -4,6 +4,7 @@ const Transaction = require('../models/Transaction');
 const UserProgress = require('../models/UserProgress');
 const Badge = require('../models/Badge');
 const ConsolidatedPortfolio = require('../models/ConsolidatedPortfolio');
+const Sip = require('../models/Sip');
 
 // Helper to check and award badge
 const awardBadgeDirect = async (userId, badgeCode) => {
@@ -511,6 +512,281 @@ const clearConsolidatedHoldings = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Get user active virtual SIPs
+ * @route   GET /api/portfolio/sips
+ * @access  Private
+ */
+const getSips = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const sips = await Sip.find({ userId, isActive: true }).populate('assetId').lean();
+    res.status(200).json(sips);
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Create/start a virtual SIP
+ * @route   POST /api/portfolio/sips
+ * @access  Private
+ */
+const createSip = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { assetId, amount, frequency } = req.body;
+
+    if (!assetId || !amount || amount < 500) {
+      res.status(400);
+      throw new Error('Please provide a valid asset and a SIP amount of at least ₹500');
+    }
+
+    const asset = await Asset.findById(assetId);
+    if (!asset) {
+      res.status(404);
+      throw new Error('Asset not found');
+    }
+
+    let portfolio = await Portfolio.findOne({ userId });
+    if (!portfolio) {
+      portfolio = await Portfolio.create({ userId, balance: 100000, holdings: [] });
+    }
+
+    // Execute first installment immediately
+    if (portfolio.balance < amount) {
+      res.status(400);
+      throw new Error(`Insufficient virtual funds for the first SIP installment. Required: ₹${amount}, Available: ₹${portfolio.balance}`);
+    }
+
+    const unitsPurchased = amount / asset.currentPrice;
+    portfolio.balance -= amount;
+
+    const holdingIndex = portfolio.holdings.findIndex(
+      (h) => h.assetId.toString() === assetId.toString()
+    );
+
+    if (holdingIndex >= 0) {
+      const holding = portfolio.holdings[holdingIndex];
+      const newQty = holding.quantity + unitsPurchased;
+      const newAvg = ((holding.quantity * holding.averageBuyPrice) + amount) / newQty;
+      holding.quantity = newQty;
+      holding.averageBuyPrice = newAvg;
+    } else {
+      portfolio.holdings.push({
+        assetId,
+        quantity: unitsPurchased,
+        averageBuyPrice: asset.currentPrice,
+      });
+    }
+
+    await portfolio.save();
+
+    // Create transaction log
+    await Transaction.create({
+      userId,
+      assetId,
+      type: 'BUY',
+      quantity: unitsPurchased,
+      price: asset.currentPrice,
+      timestamp: new Date(),
+    });
+
+    // Schedule next execution date (1 month or 1 week)
+    const nextExecutionDate = new Date();
+    if (frequency === 'WEEKLY') {
+      nextExecutionDate.setDate(nextExecutionDate.getDate() + 7);
+    } else {
+      nextExecutionDate.setMonth(nextExecutionDate.getMonth() + 1);
+    }
+
+    const newSip = await Sip.create({
+      userId,
+      assetId,
+      amount,
+      frequency: frequency || 'MONTHLY',
+      nextExecutionDate,
+      totalInvested: amount,
+      totalUnits: unitsPurchased,
+    });
+
+    // Award DIVERSIFIED badge if applicable
+    let badgeUnlocked = null;
+    if (portfolio.holdings.length >= 3) {
+      const uniqueTypes = new Set();
+      for (const h of portfolio.holdings) {
+        const heldAsset = await Asset.findById(h.assetId);
+        if (heldAsset) uniqueTypes.add(heldAsset.type);
+      }
+      if (uniqueTypes.size >= 3) {
+        const badge = await awardBadgeDirect(userId, 'DIVERSIFIED');
+        if (badge) badgeUnlocked = badge;
+      }
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `SIP initiated! First installment of ₹${amount} executed successfully.`,
+      sip: newSip,
+      badgeUnlocked
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Cancel an active virtual SIP
+ * @route   DELETE /api/portfolio/sips/:id
+ * @access  Private
+ */
+const cancelSip = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { id } = req.params;
+
+    const sip = await Sip.findOneAndDelete({ _id: id, userId });
+    if (!sip) {
+      res.status(404);
+      throw new Error('SIP subscription not found or unauthorized');
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `SIP subscription has been cancelled successfully`
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Simulate 1 Month Time Travel (advances time, fluctuates prices, executes active SIPs)
+ * @route   POST /api/portfolio/sips/process-month
+ * @access  Private
+ */
+const processMonthlySips = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    
+    // 1. Fetch user's active SIPs and virtual portfolio
+    const sips = await Sip.find({ userId, isActive: true }).populate('assetId');
+    let portfolio = await Portfolio.findOne({ userId });
+    if (!portfolio) {
+      portfolio = await Portfolio.create({ userId, balance: 100000, holdings: [] });
+    }
+
+    // 2. Perform price fluctuation (simulate 1 month market changes)
+    const assets = await Asset.find();
+    for (const asset of assets) {
+      if (asset.symbol === 'CASH') continue;
+      const v = (asset.volatility || 10) / 100;
+      // We simulate a neutral random swing between -v/2 and +v/2
+      const changePercent = (Math.random() * v - (v / 2));
+      const previousPrice = asset.currentPrice;
+      const rawPrice = previousPrice * (1 + changePercent);
+      const currentPrice = Math.round(Math.max(0.5, rawPrice) * 100) / 100;
+      asset.previousPrice = previousPrice;
+      asset.currentPrice = currentPrice;
+      await asset.save();
+    }
+
+    // Refresh active assets map for price reference
+    const updatedAssets = await Asset.find().lean();
+    const assetPriceMap = {};
+    updatedAssets.forEach(a => {
+      assetPriceMap[a._id.toString()] = a;
+    });
+
+    const executionResults = [];
+
+    // 3. Process each SIP execution
+    for (const sip of sips) {
+      const asset = assetPriceMap[sip.assetId._id.toString()];
+      if (!asset) continue;
+
+      if (portfolio.balance < sip.amount) {
+        // Insufficient funds: record failure log
+        executionResults.push({
+          sipId: sip._id,
+          assetSymbol: asset.symbol,
+          amount: sip.amount,
+          status: 'FAILED',
+          reason: 'Insufficient virtual cash balance'
+        });
+        continue;
+      }
+
+      // Execute BUY
+      const unitsPurchased = sip.amount / asset.currentPrice;
+      portfolio.balance -= sip.amount;
+
+      const holdingIndex = portfolio.holdings.findIndex(
+        (h) => h.assetId.toString() === asset._id.toString()
+      );
+
+      if (holdingIndex >= 0) {
+        const holding = portfolio.holdings[holdingIndex];
+        const newQty = holding.quantity + unitsPurchased;
+        const newAvg = ((holding.quantity * holding.averageBuyPrice) + sip.amount) / newQty;
+        holding.quantity = newQty;
+        holding.averageBuyPrice = newAvg;
+      } else {
+        portfolio.holdings.push({
+          assetId: asset._id,
+          quantity: unitsPurchased,
+          averageBuyPrice: asset.currentPrice,
+        });
+      }
+
+      // Create transaction log
+      await Transaction.create({
+        userId,
+        assetId: asset._id,
+        type: 'BUY',
+        quantity: unitsPurchased,
+        price: asset.currentPrice,
+        timestamp: new Date(),
+      });
+
+      // Update SIP record
+      sip.totalInvested += sip.amount;
+      sip.totalUnits += unitsPurchased;
+      
+      // Update next execution date
+      const nextDate = new Date(sip.nextExecutionDate);
+      if (sip.frequency === 'WEEKLY') {
+        nextDate.setDate(nextDate.getDate() + 7);
+      } else {
+        nextDate.setMonth(nextDate.getMonth() + 1);
+      }
+      sip.nextExecutionDate = nextDate;
+      await sip.save();
+
+      executionResults.push({
+        sipId: sip._id,
+        assetSymbol: asset.symbol,
+        amount: sip.amount,
+        unitsPurchased,
+        executionPrice: asset.currentPrice,
+        status: 'SUCCESS'
+      });
+    }
+
+    await portfolio.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Time advanced 1 Month! Market prices fluctuated and active virtual SIPs processed.',
+      executions: executionResults,
+      portfolio
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPortfolio,
   getAssets,
@@ -521,5 +797,9 @@ module.exports = {
   addConsolidatedHolding,
   bulkConsolidateHoldings,
   deleteConsolidatedHolding,
-  clearConsolidatedHoldings
+  clearConsolidatedHoldings,
+  getSips,
+  createSip,
+  cancelSip,
+  processMonthlySips
 };
