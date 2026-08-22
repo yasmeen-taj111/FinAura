@@ -453,7 +453,7 @@ const Sandbox = () => {
             <p className="eyebrow">Virtual Trading Environment · Simulated Data</p>
             <h1 className="mt-2 font-serif text-4xl text-brand-ink md:text-5xl">Investment Sandbox</h1>
             <p className="mt-3 text-sm leading-6 text-brand-muted">
-              Practice with ₹1,00,000 virtual INR, test cash flows, configure virtual SIPs, and see how scenarios affect a portfolio. Prices, charts, and events are simulated for education—not live market data.
+              Practice with ₹1,00,000 virtual INR, test cash flows, configure virtual SIPs and see how scenarios affect a portfolio. Prices, charts and events are simulated for education, not live market data.
             </p>
           </div>
 
