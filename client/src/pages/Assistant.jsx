@@ -3,7 +3,7 @@ import { Bot, CornerDownLeft, RotateCcw, Send, Sparkles } from 'lucide-react';
 import api from '../services/api';
 
 const quickPrompts = ['Am I saving enough each month?', 'Explain the risks of a small-cap SIP.', 'Review my portfolio allocation.', 'Fact-check this social-media stock tip.'];
-const welcomeMessage = () => ({ id: 'welcome', role: 'assistant', source: 'FinAura guide', text: 'Hi, I’m your FinAura assistant. Ask me about your budget, financial goals, virtual portfolio, or investment risk.', timestamp: new Date() });
+const welcomeMessage = () => ({ id: 'welcome', role: 'assistant', source: 'FinAura guide', text: 'Hi, I’m your FinAura assistant. Ask me about your budget, financial goals, virtual portfolio or investment risk.', timestamp: new Date() });
 
 const inlineText = (text) => text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g).map((part, index) => {
   if (part.startsWith('**') && part.endsWith('**')) return <strong key={index} className="font-bold">{part.slice(2, -2)}</strong>;
