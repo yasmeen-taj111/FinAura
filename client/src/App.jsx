@@ -15,6 +15,7 @@ import Goals from './pages/Goals';
 import Mentors from './pages/Mentors';
 import Planning from './pages/Planning';
 import Profile from './pages/Profile';
+import Assistant from './pages/Assistant';
 
 function App() {
   return (
@@ -126,6 +127,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/assistant" element={<ProtectedRoute><Layout><Assistant /></Layout></ProtectedRoute>} />
 
           {/* Fallback routes */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
