@@ -27,6 +27,17 @@ const goalSchema = new mongoose.Schema(
       default: 0,
       min: [0, 'Savings cannot be negative'],
     },
+    monthlyContribution: {
+      type: Number,
+      default: 0,
+      min: [0, 'Monthly contribution cannot be negative'],
+    },
+    expectedAnnualReturn: {
+      type: Number,
+      default: 0,
+      min: [0, 'Expected annual return cannot be negative'],
+      max: [100, 'Expected annual return cannot exceed 100%'],
+    },
     category: {
       type: String,
       enum: ['Short-Term', 'Medium-Term', 'Long-Term'],

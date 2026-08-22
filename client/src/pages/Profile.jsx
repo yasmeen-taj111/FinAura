@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -66,6 +66,11 @@ const Profile = () => {
     }
   ]);
   const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [chatMessages, chatLoading]);
 
   // Fetch all user records
   const fetchAllData = async () => {
@@ -191,6 +196,7 @@ const Profile = () => {
       const advisorMsg = {
         sender: 'advisor',
         text: response.data.reply,
+        source: response.data.source || 'FinAura guide',
         timestamp: new Date(response.data.timestamp)
       };
       setChatMessages(prev => [...prev, advisorMsg]);
@@ -1479,7 +1485,7 @@ const Profile = () => {
                             renderBotResponse(msg.text)
                           )}
                           <span className={`text-[8px] mt-2 block text-right ${isUser ? 'text-white/60' : 'text-brand-muted'}`}>
-                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {!isUser && `${msg.source || 'FinAura guide'} · `}{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       </div>
@@ -1495,6 +1501,7 @@ const Profile = () => {
                       </div>
                     </div>
                   )}
+                  <div ref={chatEndRef} />
                 </div>
 
                 {/* Suggestions bubble rows */}
@@ -1512,7 +1519,7 @@ const Profile = () => {
                 </div>
 
                 {/* Chat Inputs */}
-                <div className="px-6 py-4 border-t border-brand-border bg-white flex gap-3 items-center">
+                <div className="px-4 py-3 md:px-6 md:py-4 border-t border-brand-border bg-white flex gap-3 items-center">
                   <input
                     type="text"
                     placeholder="Ask about your SIP risks, platform consolidations, social media hype, or goals..."

@@ -36,7 +36,7 @@ const Goals = () => {
   // SIP Risk Profiler States
   const [sipFundCategory, setSipFundCategory] = useState('SMALL_CAP');
   const [sipAmount, setSipAmount] = useState(2000);
-  const [sipHorizon, setSipHorizon] = useState(5); // years
+  const [sipHorizon, setSipHorizon] = useState(1); // years
 
   const fetchGoalsAndProfile = async () => {
     try {
@@ -144,9 +144,23 @@ const Goals = () => {
     setSimGoal(goal);
     const remaining = goal.targetAmount - goal.currentSavings;
     const suggested = remaining > 0 ? Math.round(remaining / goal.timeline) : 1000;
-    setSimContribution(Math.max(500, Math.min(50000, suggested)));
-    setSimRate(10);
+    setSimContribution(Math.max(500, Math.min(50000, goal.monthlyContribution || suggested)));
+    setSimRate(goal.expectedAnnualReturn || 10);
     setSimResults(null);
+  };
+
+  const saveSimulationPlan = async () => {
+    if (!simGoal) return;
+    try {
+      const { data } = await api.put(`/goals/${simGoal._id}`, {
+        monthlyContribution: Number(simContribution),
+        expectedAnnualReturn: Number(simRate),
+      });
+      setSimGoal(data);
+      await fetchGoalsAndProfile();
+    } catch (err) {
+      console.error('Save goal plan failed:', err);
+    }
   };
 
   // SIP Risk Real-time Assessment Logic
@@ -235,7 +249,7 @@ const Goals = () => {
     const months = sipHorizon * 12;
     let projectedValue = 0;
     for (let i = 0; i < months; i++) {
-      projectedValue = (projectedValue + sipAmount) * (1 + monthlyRate);
+      projectedValue = projectedValue * (1 + monthlyRate) + sipAmount;
     }
     const totalInvested = sipAmount * months;
     const estimatedGrowth = projectedValue - totalInvested;
@@ -273,10 +287,10 @@ const Goals = () => {
         {/* Header */}
         <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest block mb-2">FINANCIAL GOALS SIMULATOR</span>
+            <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest block mb-2">PERSONAL SAVINGS GOALS</span>
             <h1 className="text-3xl md:text-4xl font-serif text-brand-ink mb-2">Goal Planning Terminal</h1>
             <p className="text-brand-muted text-xs md:text-sm max-w-2xl leading-relaxed">
-              Create simulated financial goals, forecast compounding interest rates, and analyze Systematic Investment Plan (SIP) risk metrics aligned against your diagnostics scores.
+              Save a goal and its current progress here. Forecasts are estimates only; use “Save monthly plan” in the simulator to retain its contribution and return assumptions.
             </p>
           </div>
 
@@ -403,7 +417,7 @@ const Goals = () => {
 
               <div className="text-[9px] text-brand-muted leading-relaxed flex gap-1">
                 <Info size={11} className="flex-shrink-0 mt-0.5" />
-                <span>Yield calculations assume regular daily interest compounding at constant values. Mutual fund valuations fluctuate. Past performance doesn't guarantee future yields.</span>
+                <span>Calculations assume a contribution at the end of each month and a constant expected return. Mutual fund valuations fluctuate; past performance does not guarantee returns.</span>
               </div>
             </div>
           </div>
@@ -412,7 +426,7 @@ const Goals = () => {
         {/* Goals Display Grid */}
         <section className="mb-10">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-sm font-bold text-brand-ink uppercase tracking-wider">Simulated Savings Goals</h2>
+            <h2 className="text-sm font-bold text-brand-ink uppercase tracking-wider">Saved Savings Goals</h2>
             <span className="text-[10px] text-brand-muted font-bold">{goals.length} active target milestones</span>
           </div>
 
@@ -481,6 +495,9 @@ const Goals = () => {
                           ></div>
                         </div>
                       </div>
+                      {goal.monthlyContribution > 0 && (
+                        <p className="mt-3 text-[10px] text-brand-muted">Saved plan: ₹{goal.monthlyContribution.toLocaleString('en-IN')}/month at {goal.expectedAnnualReturn}% expected return</p>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 pt-4 border-t border-brand-border">
@@ -760,8 +777,16 @@ const Goals = () => {
                           Projected: ₹{simResults.finalSavings.toLocaleString()}
                         </span>
                       </div>
+                      <p className="text-[10px] leading-relaxed text-brand-muted">This forecast does not change your saved savings balance. Save the monthly plan below, then record actual deposits with “Adjust Savings”.</p>
                     </div>
                   )}
+
+                  <button
+                    onClick={saveSimulationPlan}
+                    className="w-full py-2.5 border border-brand-primary text-brand-primary text-xs font-bold rounded-xl hover:bg-brand-light transition-all bg-white cursor-pointer"
+                  >
+                    Save monthly plan
+                  </button>
                 </div>
 
                 {/* Line Chart */}

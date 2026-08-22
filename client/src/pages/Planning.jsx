@@ -16,7 +16,7 @@ const Planning = () => {
   const [emergencyMonths, setEmergencyMonths] = useState(3);
   const [sip, setSip] = useState(5000);
   const [rate, setRate] = useState(10);
-  const [years, setYears] = useState(10);
+  const [years, setYears] = useState(1);
 
   const plan = useMemo(() => {
     const committed = essential + discretionary + emi;
@@ -42,7 +42,7 @@ const Planning = () => {
     const monthlyRate = rate / 1200;
     let value = 0;
     return Array.from({ length: years + 1 }, (_, year) => {
-      if (year) for (let month = 0; month < 12; month += 1) value = (value + sip) * (1 + monthlyRate);
+      if (year) for (let month = 0; month < 12; month += 1) value = value * (1 + monthlyRate) + sip;
       return { year: `Year ${year}`, value: Math.round(value), invested: year * 12 * sip };
     });
   }, [sip, rate, years]);

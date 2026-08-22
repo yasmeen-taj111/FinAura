@@ -4,6 +4,29 @@ const Portfolio = require('../models/Portfolio');
 const Goal = require('../models/Goal');
 const ConsolidatedPortfolio = require('../models/ConsolidatedPortfolio');
 
+const requestGroqCompletion = async (systemPrompt, message) => {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.GROQ_API_KEY}` },
+      body: JSON.stringify({
+        model: process.env.GROQ_MODEL || 'llama-3.3-70b-versatile',
+        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: message }],
+        temperature: 0.4,
+        max_tokens: 1200,
+      }),
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Groq returned ${response.status}: ${await response.text()}`);
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content?.trim() || null;
+  } finally {
+    clearTimeout(timeout);
+  }
+};
+
 /**
  * Intelligent Fallback Advisor - Generates highly structured, realistic financial advice
  * when Gemini API keys are not configured or fail.
@@ -216,40 +239,26 @@ const chatWithAssistant = async (req, res, next) => {
 
     const name = req.user.name || 'Learner';
     const isMockKey = !process.env.AI_API_KEY || process.env.AI_API_KEY === 'mock_key';
+    const hasGroqKey = process.env.GROQ_API_KEY && process.env.GROQ_API_KEY !== 'mock_key';
 
-    if (isMockKey) {
-      // Return high-quality structured simulator response directly
-      const reply = generateFallbackResponse(message, name, profile, portfolio, consolidated, goals);
-      return res.status(200).json({
-        reply,
-        timestamp: new Date()
-      });
-    }
+    // Compile user context
+    const savingsRate = profile?.monthlyIncome > 0
+      ? Math.round((profile.monthlySavings / profile.monthlyIncome) * 100)
+      : 0;
 
-    // Integrate real Google Gemini
-    try {
-      const genAI = new GoogleGenerativeAI(process.env.AI_API_KEY);
-      // Use gemini-1.5-flash for speed and efficiency in chat
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const goalsText = goals.length > 0
+      ? goals.map((g, idx) => `${idx+1}. Goal Name: ${g.name}, Target: ₹${g.targetAmount}, Current: ₹${g.currentSavings}, Timeline: ${g.timeline} months, Category: ${g.category}`).join('\n')
+      : 'No active goals configured.';
 
-      // Compile user context
-      const savingsRate = profile?.monthlyIncome > 0 
-        ? Math.round((profile.monthlySavings / profile.monthlyIncome) * 100) 
-        : 0;
+    const sandboxHoldingsText = portfolio?.holdings?.length > 0
+      ? portfolio.holdings.map(h => `- Symbol: ${h.asset?.symbol}, Units: ${h.quantity}, Avg Cost: ₹${h.averageBuyPrice}, Current Price: ₹${h.asset?.currentPrice}`).join('\n')
+      : 'No sandbox holdings (only cash).';
 
-      const goalsText = goals.length > 0
-        ? goals.map((g, idx) => `${idx+1}. Goal Name: ${g.name}, Target: ₹${g.targetAmount}, Current: ₹${g.currentSavings}, Timeline: ${g.timeline} months, Category: ${g.category}`).join('\n')
-        : 'No active goals configured.';
+    const consolidatedText = consolidated.length > 0
+      ? consolidated.map(c => `- Symbol: ${c.symbol} (${c.name}), Platform: ${c.platform}, Asset Type: ${c.assetType}, Units: ${c.quantity}, Avg Cost: ₹${c.averageBuyPrice}, Current Price: ₹${c.currentPrice}`).join('\n')
+      : 'No consolidated external broker holdings.';
 
-      const sandboxHoldingsText = portfolio?.holdings?.length > 0
-        ? portfolio.holdings.map(h => `- Symbol: ${h.asset?.symbol}, Units: ${h.quantity}, Avg Cost: ₹${h.averageBuyPrice}, Current Price: ₹${h.asset?.currentPrice}`).join('\n')
-        : 'No sandbox holdings (only cash).';
-
-      const consolidatedText = consolidated.length > 0
-        ? consolidated.map(c => `- Symbol: ${c.symbol} (${c.name}), Platform: ${c.platform}, Asset Type: ${c.assetType}, Units: ${c.quantity}, Avg Cost: ₹${c.averageBuyPrice}, Current Price: ₹${c.currentPrice}`).join('\n')
-        : 'No consolidated external broker holdings.';
-
-      const systemPrompt = `You are FinAura's Elite AI Wealth Advisor, an expert digital financial assistant configured for Indian retail investors (students and professionals). 
+    const systemPrompt = `You are FinAura's Elite AI Wealth Advisor, an expert digital financial assistant configured for Indian retail investors (students and professionals).
 Your objective is to turn complex market statistics and user budget records into clear, personalized, data-driven, and actionable advice.
 Maintain a professional, objective, yet highly encouraging financial planner tone. Avoid generic filler.
 CRITICAL DESIGN RULE: Do NOT use excessive emojis. Emojis make your outputs look automated/AI-generated. Use a maximum of 2-3 emojis in the entire response, only to draw attention to critical alerts (e.g. ⚠️ for risk mismatch, 🔴 for high risk, 🟢 for healthy metrics).
@@ -257,7 +266,6 @@ CRITICAL DESIGN RULE: Do NOT use excessive emojis. Emojis make your outputs look
 User Details:
 - Name: ${name}
 - Diagnostic Confidence Scores (out of 100):
-  * Overall: ${profile?.scores?.overall || 'Not completed'}
   * Money Management: ${profile?.scores?.moneyManagement || 0}
   * Investing Knowledge: ${profile?.scores?.investingKnowledge || 0}
   * Risk Understanding: ${profile?.scores?.riskUnderstanding || 0}
@@ -284,22 +292,46 @@ Instruction Guidelines:
 
 Now, answer the user's query: "${message}"`;
 
-      const result = await model.generateContent(systemPrompt);
-      const text = result.response.text();
+    if (!isMockKey) {
+      try {
+        const genAI = new GoogleGenerativeAI(process.env.AI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const result = await model.generateContent(systemPrompt);
+        const text = result.response.text();
 
-      res.status(200).json({
-        reply: text,
-        timestamp: new Date()
-      });
-
-    } catch (apiError) {
-      console.error('Gemini API call failed, falling back to local advisor:', apiError);
-      const reply = generateFallbackResponse(message, name, profile, portfolio, consolidated, goals);
-      res.status(200).json({
-        reply,
-        timestamp: new Date()
-      });
+        return res.status(200).json({
+          reply: text,
+          source: 'Gemini',
+          timestamp: new Date()
+        });
+      } catch (apiError) {
+        console.error('Gemini API call failed, attempting Groq fallback if key exists:', apiError);
+      }
     }
+
+    // Attempt Groq fallback if configured
+    if (hasGroqKey) {
+      try {
+        const replyText = await requestGroqCompletion(systemPrompt, message);
+        if (replyText) {
+          return res.status(200).json({
+            reply: replyText,
+            source: 'Groq',
+            timestamp: new Date()
+          });
+        }
+      } catch (groqError) {
+        console.error('Groq integration failed, falling back to local advisor:', groqError);
+      }
+    }
+
+    // Default local advisor fallback
+    const reply = generateFallbackResponse(message, name, profile, portfolio, consolidated, goals);
+    res.status(200).json({
+      reply,
+      source: 'FinAura guide',
+      timestamp: new Date()
+    });
 
   } catch (error) {
     next(error);

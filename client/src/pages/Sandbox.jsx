@@ -13,6 +13,8 @@ const Sandbox = () => {
   const [assets, setAssets] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [sips, setSips] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Tabs & Filters
@@ -39,6 +41,8 @@ const Sandbox = () => {
   const [simulating, setSimulating] = useState(false);
   const [simMessage, setSimMessage] = useState('');
   const [badgeUnlocked, setBadgeUnlocked] = useState(null);
+  const [tourStep, setTourStep] = useState(0);
+  const [showTour, setShowTour] = useState(true);
 
   // Local Scenario History logs
   const [scenarioHistory, setScenarioHistory] = useState([
@@ -54,16 +58,20 @@ const Sandbox = () => {
 
   const fetchAllData = async (shouldKeepSelected = false) => {
     try {
-      const [portRes, assetsRes, transRes, sipsRes] = await Promise.all([
+      const [portRes, assetsRes, transRes, sipsRes, profileRes, goalsRes] = await Promise.all([
         api.get('/portfolio'),
         api.get('/portfolio/assets'),
         api.get('/portfolio/transactions'),
-        api.get('/portfolio/sips')
+        api.get('/portfolio/sips'),
+        api.get('/profile'),
+        api.get('/goals')
       ]);
       setPortfolio(portRes.data);
       setAssets(assetsRes.data);
       setTransactions(transRes.data);
       setSips(sipsRes.data);
+      setProfile(profileRes.data);
+      setGoals(goalsRes.data);
 
       // Default select the first asset if none is selected
       if (assetsRes.data?.length > 0 && !shouldKeepSelected) {
@@ -258,6 +266,29 @@ const Sandbox = () => {
     { label: 'Bonds', value: 'BOND' }
   ];
 
+  const tourSteps = [
+    {
+      title: 'Welcome to the Investment Sandbox',
+      text: 'This is a safe practice space. You start with ₹1,00,000 of virtual cash, so no real money is invested or at risk.',
+    },
+    {
+      title: 'Prices and charts are simulated',
+      text: 'The market board uses educational sample prices and generated charts. Use it to learn how risk and price changes work—not as a live market-data source or a buy recommendation.',
+    },
+    {
+      title: 'Choose an asset, then practise',
+      text: 'Select a stock, fund, gold, bond, or FD to review its risk label. On the right, you can place a virtual buy or sell order, or start a virtual SIP.',
+    },
+    {
+      title: 'Test market scenarios',
+      text: '“Fluctuate prices” applies a small simulated movement. Bull Run raises eligible prices, Bear Cycle simulates a broad fall, and Flash Crash creates a sharper short-term fall. These are learning scenarios, not predictions.',
+    },
+    {
+      title: 'Advance your virtual month',
+      text: '“Simulate 1 Month” moves the sandbox forward, adjusts simulated prices, and processes any active virtual SIP instalments. Check your health score afterwards to see the impact.',
+    },
+  ];
+
   // Filters & Search logic
   const filteredAssets = useMemo(() => {
     return assets.filter(a => {
@@ -359,6 +390,17 @@ const Sandbox = () => {
     return list.filter(item => item.value > 0);
   }, [portfolio]);
 
+  const selectedRiskMessage = useMemo(() => {
+    if (!selectedAsset) return null;
+    const riskScore = profile?.scores?.riskUnderstanding || 0;
+    if (!profile?.assessmentCompleted) return 'Complete the financial assessment to receive a personalised risk check. This asset data remains simulated.';
+    if (['High', 'Very High'].includes(selectedAsset.riskLevel) && riskScore < 45) {
+      return `Your risk-understanding score is ${riskScore}/100. This simulated ${selectedAsset.riskLevel.toLowerCase()}-risk asset is a learning opportunity—run a bear-cycle test before adding it.`;
+    }
+    if (selectedAsset.riskLevel === 'Very High') return 'Very-high-risk simulated asset: use a long horizon in this lab and test a downturn before investing more.';
+    return 'Simulation reminder: this price and chart are educational estimates, not live market data or a recommendation.';
+  }, [selectedAsset, profile]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-brand-bg text-brand-ink">
@@ -374,19 +416,56 @@ const Sandbox = () => {
   return (
     <div className="page-shell px-5 py-8 md:px-8 lg:px-12 lg:py-10">
       <div className="mx-auto max-w-7xl">
+        <AnimatePresence>
+          {showTour && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] flex items-end justify-center bg-brand-ink/35 p-4 backdrop-blur-[1px] md:items-center"
+            >
+              <motion.div
+                initial={{ opacity: 0, y: 16, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 16, scale: 0.98 }}
+                className="w-full max-w-md rounded-3xl border border-brand-border bg-white p-6 shadow-2xl"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-brand-primary">Sandbox tour · {tourStep + 1} of {tourSteps.length}</p>
+                    <h2 className="mt-2 text-xl font-bold text-brand-ink">{tourSteps[tourStep].title}</h2>
+                  </div>
+                  <button onClick={() => setShowTour(false)} className="border-0 bg-transparent text-[11px] font-bold text-brand-muted hover:text-brand-ink cursor-pointer">Skip</button>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-brand-muted">{tourSteps[tourStep].text}</p>
+                <div className="mt-6 flex items-center justify-between gap-3">
+                  <div className="flex gap-1.5">{tourSteps.map((_, index) => <span key={index} className={`h-1.5 w-5 rounded-full ${index <= tourStep ? 'bg-brand-primary' : 'bg-brand-border'}`} />)}</div>
+                  <button onClick={() => tourStep === tourSteps.length - 1 ? setShowTour(false) : setTourStep(step => step + 1)} className="rounded-xl bg-brand-primary px-4 py-2.5 text-xs font-bold text-white border-0 cursor-pointer">{tourStep === tourSteps.length - 1 ? 'Start exploring' : 'Next'}</button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         
         {/* Header Hero Section */}
         <header className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="eyebrow">Virtual Trading Environment</p>
+            <p className="eyebrow">Virtual Trading Environment · Simulated Data</p>
             <h1 className="mt-2 font-serif text-4xl text-brand-ink md:text-5xl">Investment Sandbox</h1>
             <p className="mt-3 text-sm leading-6 text-brand-muted">
-              Groww-style trading interface. Practice trades in real-time, test cash flows, configure virtual SIPs, and simulate macroeconomic cycles with ₹1,00,000 virtual INR.
+              Practice with ₹1,00,000 virtual INR, test cash flows, configure virtual SIPs, and see how scenarios affect a portfolio. Prices, charts, and events are simulated for education—not live market data.
             </p>
           </div>
 
           {/* Scenario / Time travel injectors */}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => { setTourStep(0); setShowTour(true); }}
+              className="inline-flex items-center gap-2 rounded-xl bg-white border border-brand-border px-4 py-2.5 text-xs font-bold text-brand-primary hover:bg-brand-light transition-all shadow-card cursor-pointer"
+            >
+              <Info size={15} />
+              Tour
+            </button>
             <button
               onClick={() => handleSimulateMarket('NEUTRAL')}
               disabled={simulating}
@@ -919,6 +998,12 @@ const Sandbox = () => {
                       </span>
                     )}
                   </div>
+                </div>
+
+                <div className={`rounded-xl border p-3 text-[11px] leading-5 ${['High', 'Very High'].includes(selectedAsset.riskLevel) ? 'border-amber-200 bg-amber-50 text-brand-ink' : 'border-brand-border bg-brand-light/40 text-brand-muted'}`}>
+                  <div className="mb-1 flex items-center gap-1 font-bold text-brand-primary"><Info size={13} /> Personal risk check</div>
+                  {selectedRiskMessage}
+                  {goals.length > 0 && tradeType !== 'SELL' && <p className="mt-1.5 border-t border-brand-border pt-1.5">Your saved goals stay separate from this virtual trade. Use the Goals page to record actual savings progress.</p>}
                 </div>
 
                 {/* Dynamic Price Chart with timeline toggles */}
