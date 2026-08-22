@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return userData;
     } catch (err) {
-      const message = err.response?.data?.message || 'Login failed. Please try again.';
+      const message = err.userMessage || err.response?.data?.message || 'Login failed. Please try again.';
       setError(message);
       throw new Error(message);
     }
@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return userData;
     } catch (err) {
-      const message = err.response?.data?.message || 'Registration failed. Please try again.';
+      const message = err.userMessage || err.response?.data?.message || 'Registration failed. Please try again.';
       setError(message);
       throw new Error(message);
     }

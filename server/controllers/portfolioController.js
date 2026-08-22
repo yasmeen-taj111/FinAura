@@ -6,6 +6,29 @@ const Badge = require('../models/Badge');
 const ConsolidatedPortfolio = require('../models/ConsolidatedPortfolio');
 const Sip = require('../models/Sip');
 
+// A new local database should still provide a usable sandbox without running the
+// full seed script (which clears user data). These are simulated learning assets.
+const DEFAULT_SANDBOX_ASSETS = [
+  { name: 'Tata Consultancy Services', symbol: 'TCS', type: 'STOCK', currentPrice: 3800, previousPrice: 3820, riskLevel: 'Moderate', description: 'Simulated large-cap IT equity.', volatility: 8 },
+  { name: 'Reliance Industries', symbol: 'RELIANCE', type: 'STOCK', currentPrice: 2900, previousPrice: 2850, riskLevel: 'Moderate', description: 'Simulated diversified large-cap equity.', volatility: 10 },
+  { name: 'Nifty 50 Index Fund', symbol: 'NIFTY50', type: 'MUTUAL_FUND', currentPrice: 220, previousPrice: 221, riskLevel: 'Moderate', description: 'Simulated broad-market index fund.', volatility: 7 },
+  { name: 'Small Cap Growth Fund', symbol: 'SMALLCAP', type: 'MUTUAL_FUND', currentPrice: 85, previousPrice: 88, riskLevel: 'Very High', description: 'Simulated high-volatility small-cap fund.', volatility: 18 },
+  { name: 'Sovereign Gold Bond', symbol: 'GOLD', type: 'GOLD', currentPrice: 6500, previousPrice: 6470, riskLevel: 'Low', description: 'Simulated gold-linked government security.', volatility: 5 },
+  { name: 'SBI Fixed Deposit (1 Year)', symbol: 'SBIFD', type: 'FD', currentPrice: 10000, previousPrice: 10000, riskLevel: 'Low', description: 'Simulated fixed-deposit product.', volatility: 0 },
+  { name: 'Government Securities (10 Year)', symbol: 'GSEC10Y', type: 'BOND', currentPrice: 98, previousPrice: 97.8, riskLevel: 'Low', description: 'Simulated sovereign bond.', volatility: 3 },
+  { name: 'Zomato Limited', symbol: 'ZOMATO', type: 'STOCK', currentPrice: 160, previousPrice: 152, riskLevel: 'High', description: 'Simulated high-growth equity.', volatility: 25 },
+  { name: 'HDFC Liquid Fund', symbol: 'LIQUID', type: 'MUTUAL_FUND', currentPrice: 50, previousPrice: 50, riskLevel: 'Low', description: 'Simulated liquid mutual fund.', volatility: 1 },
+  { name: 'Cash Account', symbol: 'CASH', type: 'CASH', currentPrice: 1, previousPrice: 1, riskLevel: 'Low', description: 'Simulated cash balance.', volatility: 0 },
+];
+
+const ensureSandboxAssets = async () => {
+  const count = await Asset.countDocuments();
+  if (count > 0) return;
+  await Asset.bulkWrite(DEFAULT_SANDBOX_ASSETS.map((asset) => ({
+    updateOne: { filter: { symbol: asset.symbol }, update: { $setOnInsert: asset }, upsert: true },
+  })));
+};
+
 // Helper to check and award badge
 const awardBadgeDirect = async (userId, badgeCode) => {
   const progress = await UserProgress.findOne({ userId });
@@ -95,6 +118,7 @@ const getPortfolio = async (req, res, next) => {
  */
 const getAssets = async (req, res, next) => {
   try {
+    await ensureSandboxAssets();
     const assets = await Asset.find().sort({ type: 1, name: 1 });
     res.status(200).json(assets);
   } catch (error) {

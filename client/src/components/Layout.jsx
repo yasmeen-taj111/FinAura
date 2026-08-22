@@ -21,7 +21,7 @@ const navItems = [
   { label: 'Plan', path: '/plan', icon: Target },
   { label: 'Explore', path: '/sandbox', icon: Compass },
   { label: 'My Profile', path: '/profile', icon: User },
-  { label: 'AI Assistant', path: '/profile#chat', icon: Bot },
+  { label: 'AI Assistant', path: '/assistant', icon: Bot },
 ];
 
 const Layout = ({ children }) => {

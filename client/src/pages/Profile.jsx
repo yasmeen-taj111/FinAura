@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+<<<<<<< HEAD
+import { Link } from 'react-router-dom';
+=======
 import { useLocation, Link } from 'react-router-dom';
+>>>>>>> origin/front
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  User, Shield, Mail, Coins, Landmark, Target, Bot, Download, 
-  Send, Sparkles, AlertCircle, ArrowUpRight, ArrowDownRight, Award,
+  User, Shield, Mail, Coins, Landmark, Target, Download,
+  AlertCircle, ArrowUpRight, ArrowDownRight, Award,
   Upload, Plus, Trash2, HelpCircle, FileText, CheckCircle2, ChevronRight, X, AlertTriangle
 } from 'lucide-react';
 import api from '../services/api';
@@ -13,14 +17,13 @@ import {
 } from 'recharts';
 
 const Profile = () => {
-  const location = useLocation();
   const [profile, setProfile] = useState(null);
   const [portfolio, setPortfolio] = useState(null);
   const [goals, setGoals] = useState([]);
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Tab State: 'diagnostics', 'portfolio', 'chat'
+  // Tab State: 'diagnostics', 'portfolio'
   const [activeTab, setActiveTab] = useState('diagnostics');
 
   // Portfolio Sub-Tab: 'sandbox' vs 'consolidated'
@@ -56,22 +59,6 @@ const Profile = () => {
   const [dragOver, setDragOver] = useState(false);
   const [uploadingCSV, setUploadingCSV] = useState(false);
 
-  // Chat Assistant States
-  const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState([
-    {
-      sender: 'advisor',
-      text: "Hello! I am your **FinAura AI Advisor**.\n\nI have evaluated your profile, goals, virtual sandbox holdings, and consolidated broker accounts. You can select a preset prompt below or ask about your asset allocation, savings targets, and social media investment tips!",
-      timestamp: new Date()
-    }
-  ]);
-  const [chatLoading, setChatLoading] = useState(false);
-  const chatEndRef = useRef(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [chatMessages, chatLoading]);
-
   // Fetch all user records
   const fetchAllData = async () => {
     try {
@@ -101,15 +88,6 @@ const Profile = () => {
   useEffect(() => {
     fetchAllData();
   }, []);
-
-  // Sync tab with URL anchor
-  useEffect(() => {
-    if (location.hash === '#chat') {
-      setActiveTab('chat');
-    } else {
-      setActiveTab('diagnostics');
-    }
-  }, [location.hash]);
 
   // Download Portfolio CSV Utility
   const handleDownloadPortfolio = () => {
@@ -173,43 +151,6 @@ const Profile = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-    }
-  };
-
-  // Send message to chatbot
-  const handleSendMessage = async (customText = null) => {
-    const textToSend = customText || chatInput;
-    if (!textToSend.trim()) return;
-
-    const userMsg = {
-      sender: 'user',
-      text: textToSend,
-      timestamp: new Date()
-    };
-    setChatMessages(prev => [...prev, userMsg]);
-    if (!customText) setChatInput('');
-    
-    setChatLoading(true);
-    try {
-      const response = await api.post('/assistant/chat', { message: textToSend });
-      
-      const advisorMsg = {
-        sender: 'advisor',
-        text: response.data.reply,
-        source: response.data.source || 'FinAura guide',
-        timestamp: new Date(response.data.timestamp)
-      };
-      setChatMessages(prev => [...prev, advisorMsg]);
-    } catch (err) {
-      console.error('AI chat failed:', err);
-      const errorMsg = {
-        sender: 'advisor',
-        text: "I couldn't fetch insights from my database models. Please verify your connection or try again in a few moments.",
-        timestamp: new Date()
-      };
-      setChatMessages(prev => [...prev, errorMsg]);
-    } finally {
-      setChatLoading(false);
     }
   };
 
@@ -822,18 +763,6 @@ const Profile = () => {
             <Landmark size={16} />
             Asset Portfolio Logs
           </button>
-          <button
-            id="chat-tab-trigger"
-            onClick={() => setActiveTab('chat')}
-            className={`pb-3 px-5 text-xs md:text-sm font-bold flex items-center gap-2 transition-all border-b-2 ${
-              activeTab === 'chat' 
-                ? 'border-brand-primary text-brand-primary' 
-                : 'border-transparent text-brand-muted hover:text-brand-primary'
-            }`}
-          >
-            <Bot size={16} />
-            AI Financial Advisor
-          </button>
         </div>
 
         {/* MAIN TABS DISPLAY */}
@@ -1440,104 +1369,6 @@ const Profile = () => {
                     </div>
                   </div>
                 )}
-              </motion.div>
-            )}
-
-            {/* TAB 3: AI ADVISOR CHATBOT */}
-            {activeTab === 'chat' && (
-              <motion.div
-                key="chat"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="surface-card rounded-3xl border border-brand-border overflow-hidden flex flex-col h-[560px]"
-              >
-                
-                {/* Chat Panel Header */}
-                <div className="px-6 py-4 border-b border-brand-border bg-brand-light/30 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Bot className="text-brand-primary" />
-                    <div>
-                      <h3 className="font-bold text-brand-ink text-sm">FinAura AI Wealth Assistant</h3>
-                      <p className="text-[10px] text-brand-muted">Context-aware advice utilizing diagnostic matrix, sandbox assets, and consolidated statements</p>
-                    </div>
-                  </div>
-                  <span className="flex h-2.5 w-2.5 relative">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-success opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-brand-success"></span>
-                  </span>
-                </div>
-
-                {/* Messages view */}
-                <div className="flex-1 p-6 overflow-y-auto space-y-4 bg-brand-bg/25">
-                  {chatMessages.map((msg, idx) => {
-                    const isUser = msg.sender === 'user';
-                    return (
-                      <div key={idx} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[85%] rounded-2xl p-4 text-xs md:text-sm border leading-relaxed ${
-                          isUser 
-                            ? 'bg-brand-primary text-white border-brand-primary rounded-tr-none shadow-card' 
-                            : 'bg-white text-brand-ink border-brand-border rounded-tl-none shadow-card prose'
-                        }`}>
-                          {isUser ? (
-                            <p className="whitespace-pre-wrap">{msg.text}</p>
-                          ) : (
-                            renderBotResponse(msg.text)
-                          )}
-                          <span className={`text-[8px] mt-2 block text-right ${isUser ? 'text-white/60' : 'text-brand-muted'}`}>
-                            {!isUser && `${msg.source || 'FinAura guide'} · `}{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  
-                  {chatLoading && (
-                    <div className="flex justify-start">
-                      <div className="bg-white text-brand-ink border border-brand-border rounded-2xl rounded-tl-none p-4 shadow-card flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-brand-muted rounded-full animate-bounce"></span>
-                        <span className="w-1.5 h-1.5 bg-brand-muted rounded-full animate-bounce [animation-delay:0.2s]"></span>
-                        <span className="w-1.5 h-1.5 bg-brand-muted rounded-full animate-bounce [animation-delay:0.4s]"></span>
-                      </div>
-                    </div>
-                  )}
-                  <div ref={chatEndRef} />
-                </div>
-
-                {/* Suggestions bubble rows */}
-                <div className="px-6 py-2 border-t border-brand-border bg-white flex flex-wrap gap-2 overflow-x-auto">
-                  {advisorSuggestions.map((sug, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSendMessage(sug.text)}
-                      disabled={chatLoading}
-                      className="px-3 py-1.5 rounded-full border border-brand-border text-[10px] font-bold text-brand-primary hover:bg-brand-light transition-all cursor-pointer bg-white animate-fade-in"
-                    >
-                      {sug.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Chat Inputs */}
-                <div className="px-4 py-3 md:px-6 md:py-4 border-t border-brand-border bg-white flex gap-3 items-center">
-                  <input
-                    type="text"
-                    placeholder="Ask about your SIP risks, platform consolidations, social media hype, or goals..."
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                    disabled={chatLoading}
-                    className="flex-1 bg-brand-bg/50 border border-brand-border rounded-xl px-4 py-3 text-xs md:text-sm text-brand-ink focus:outline-brand-primary"
-                  />
-                  <button
-                    onClick={() => handleSendMessage()}
-                    disabled={chatLoading || !chatInput.trim()}
-                    className="p-3 bg-brand-primary text-white rounded-xl hover:opacity-95 disabled:opacity-30 transition-all border-0 cursor-pointer shadow-card"
-                  >
-                    <Send size={16} />
-                  </button>
-                </div>
-
               </motion.div>
             )}
 
