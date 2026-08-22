@@ -25,13 +25,6 @@ const AppFooter = () => {
           </Link>
           <span className="text-brand-border">·</span>
           <Link
-            to="/mentors"
-            className="hover:text-brand-primary transition-colors"
-          >
-            Mentors
-          </Link>
-          <span className="text-brand-border">·</span>
-          <Link
             to="/assistant"
             className="hover:text-brand-primary transition-colors"
           >

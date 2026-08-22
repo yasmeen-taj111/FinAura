@@ -12,7 +12,7 @@ import CourseDetails from './pages/CourseDetails';
 import LessonViewer from './pages/LessonViewer';
 import Sandbox from './pages/Sandbox';
 import Goals from './pages/Goals';
-import Mentors from './pages/Mentors';
+
 import Planning from './pages/Planning';
 import Profile from './pages/Profile';
 import Assistant from './pages/Assistant';
@@ -98,16 +98,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/mentors"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Mentors />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+
           <Route
             path="/assessment"
             element={

@@ -902,8 +902,8 @@ const Profile = () => {
                 <div className="surface-card p-6 lg:col-span-3">
                   {riskProfile ? (
                     <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-center">
-                      <div className="grid h-28 w-28 place-items-center rounded-full border-8 border-brand-light bg-brand-primary text-center text-white shadow-card">
-                        <div><p className="text-3xl font-bold leading-none">{riskProfile.score}</p><p className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/75">Risk fit</p></div>
+                      <div className="grid h-28 w-28 place-items-center rounded-full border-8 border-brand-light bg-brand-primary text-center shadow-card" style={{ color: '#ffffff' }}>
+                        <div><p className="text-3xl font-bold leading-none">{riskProfile.score}</p><p className="mt-1 text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Risk fit</p></div>
                       </div>
                       <div>
                         <div className="flex flex-wrap items-center gap-2"><p className="text-sm font-bold uppercase tracking-wider text-brand-ink">Your investment risk profile</p><span className="rounded-full bg-brand-light px-2.5 py-1 text-[10px] font-bold text-brand-primary">{riskProfile.band}</span></div>

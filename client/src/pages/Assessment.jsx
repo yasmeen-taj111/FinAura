@@ -172,10 +172,10 @@ const Assessment = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="glass-card rounded-3xl p-8 border border-white/10 shadow-glass"
+              className="glass-card rounded-3xl p-8 shadow-glass"
             >
-              <h2 className="text-2xl font-bold text-white mb-2">Basic Financial Metrics</h2>
-              <p className="text-brand-muted text-sm mb-6 leading-relaxed">
+              <h2 className="text-2xl font-bold text-brand-ink mb-2">Basic Financial Metrics</h2>
+              <p className="text-brand-muted text-sm mb-8 leading-relaxed">
                 Provide estimates of your current monthly cash flow. This information helps us gauge your savings rate and budget structure.
               </p>
 
@@ -195,7 +195,7 @@ const Assessment = () => {
                       value={income}
                       onChange={handleFinancialsChange}
                       placeholder="e.g. 50000"
-                      className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-white/10 rounded-xl text-slate-100 placeholder-brand-muted/50 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                      className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-brand-ink placeholder-brand-muted/50 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
                       required
                     />
                   </div>
@@ -216,7 +216,7 @@ const Assessment = () => {
                       value={expenses}
                       onChange={handleFinancialsChange}
                       placeholder="e.g. 30000"
-                      className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-white/10 rounded-xl text-slate-100 placeholder-brand-muted/50 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                      className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-brand-ink placeholder-brand-muted/50 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
                       required
                     />
                   </div>
@@ -237,7 +237,7 @@ const Assessment = () => {
                       value={savings}
                       onChange={handleFinancialsChange}
                       placeholder="e.g. 20000"
-                      className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-white/10 rounded-xl text-slate-100 placeholder-brand-muted/50 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                      className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-brand-ink placeholder-brand-muted/50 focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all"
                       required
                     />
                   </div>
@@ -254,17 +254,17 @@ const Assessment = () => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="glass-card rounded-3xl p-8 border border-white/10 shadow-glass"
+              className="glass-card rounded-3xl p-8 shadow-glass"
             >
               {/* Category Indicator */}
               <div className="mb-2">
-                <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded bg-brand-primary/10 border border-brand-primary/20 text-indigo-300">
+                <span className="text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded bg-brand-primary/10 text-brand-primary">
                   {questions[currentStep - 1].category.replace(/([A-Z])/g, ' $1').trim()}
                 </span>
               </div>
 
               {/* Question Text */}
-              <h3 className="text-xl font-bold text-white mb-6 leading-snug">
+              <h3 className="text-xl font-bold text-brand-ink mb-6 leading-snug">
                 {questions[currentStep - 1].text}
               </h3>
 
@@ -281,13 +281,13 @@ const Assessment = () => {
                       onClick={() => handleOptionSelect(qId, index)}
                       className={`w-full text-left p-4 rounded-xl border text-sm font-semibold transition-all duration-200 cursor-pointer flex items-center justify-between ${
                         isSelected
-                          ? 'bg-brand-primary/15 border-brand-secondary text-white shadow-glow-secondary'
-                          : 'bg-brand-bg/30 border-white/5 text-slate-300 hover:bg-white/5 hover:border-white/10'
+                          ? 'bg-brand-primary/10 border-brand-primary text-brand-ink shadow-sm'
+                          : 'bg-brand-bg/50 border-brand-border text-brand-muted hover:bg-brand-light hover:text-brand-ink hover:border-brand-primary/30'
                       }`}
                     >
                       <span>{option}</span>
                       {isSelected && (
-                        <div className="w-2 h-2 rounded-full bg-brand-secondary shadow-glow-secondary"></div>
+                        <div className="w-2 h-2 rounded-full bg-brand-primary"></div>
                       )}
                     </button>
                   );
@@ -303,12 +303,12 @@ const Assessment = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              className="glass-card rounded-3xl p-8 border border-white/10 shadow-glass text-center"
+              className="glass-card rounded-3xl p-8 shadow-glass text-center"
             >
-              <div className="w-16 h-16 rounded-full bg-brand-secondary/15 flex items-center justify-center text-brand-secondary mx-auto mb-6 shadow-glow-secondary animate-pulse">
+              <div className="w-16 h-16 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary mx-auto mb-6">
                 <Shield className="w-8 h-8" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-3">All Done!</h2>
+              <h2 className="text-2xl font-bold text-brand-ink mb-3">All Done!</h2>
               <p className="text-brand-muted text-sm mb-8 leading-relaxed max-w-sm mx-auto">
                 Your questionnaire outputs are ready for analysis. We’ll calculate your financial confidence and an educational investment risk profile from your tolerance, capacity, and goals.
               </p>

@@ -458,8 +458,8 @@ const LessonViewer = () => {
                           <span className="text-[10px] uppercase font-bold text-brand-muted">Estimated Returns</span>
                           <p className="text-base font-bold text-brand-success mt-1">₹{sipGain.toLocaleString('en-IN')}</p>
                         </div>
-                        <div className="p-3 bg-brand-primary rounded-xl text-white">
-                          <span className="text-[10px] uppercase font-bold text-brand-sage">Total Future Value</span>
+                        <div className="p-3 bg-brand-primary rounded-xl shadow-sm" style={{ color: '#ffffff' }}>
+                          <span className="text-[10px] uppercase font-bold" style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Total Future Value</span>
                           <p className="text-base font-bold mt-1">₹{sipFutureValue.toLocaleString('en-IN')}</p>
                         </div>
                       </div>
@@ -520,8 +520,8 @@ const LessonViewer = () => {
                           <span className="text-[10px] uppercase font-bold text-brand-muted">Interest Earned</span>
                           <p className="text-base font-bold text-brand-success mt-1">₹{ciInterest.toLocaleString('en-IN')}</p>
                         </div>
-                        <div className="p-3 bg-brand-primary rounded-xl text-white">
-                          <span className="text-[10px] uppercase font-bold text-brand-sage">Total Accumulated Value</span>
+                        <div className="p-3 bg-brand-primary rounded-xl shadow-sm" style={{ color: '#ffffff' }}>
+                          <span className="text-[10px] uppercase font-bold" style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Total Accumulated Value</span>
                           <p className="text-base font-bold mt-1">₹{ciAccumulated.toLocaleString('en-IN')}</p>
                         </div>
                       </div>
@@ -620,10 +620,10 @@ const LessonViewer = () => {
                           <p className="text-base font-bold text-brand-danger mt-1">₹{infLoss.toLocaleString('en-IN')}</p>
                           <span className="text-[9px] text-brand-muted">Purchasing power lost to inflation</span>
                         </div>
-                        <div className="p-4 bg-brand-primary rounded-xl text-white">
-                          <span className="text-[10px] uppercase font-bold text-brand-sage font-semibold">Equivalent Capital Needed</span>
+                        <div className="p-4 bg-brand-primary rounded-xl shadow-sm" style={{ color: '#ffffff' }}>
+                          <span className="text-[10px] uppercase font-bold" style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Equivalent Capital Needed</span>
                           <p className="text-base font-bold mt-1">₹{infEquivalent.toLocaleString('en-IN')}</p>
-                          <span className="text-[9px] text-brand-sage">To buy what ₹{infPrincipal.toLocaleString('en-IN')} buys today</span>
+                          <span className="text-[9px]" style={{ color: 'rgba(255, 255, 255, 0.6)' }}>To buy what ₹{infPrincipal.toLocaleString('en-IN')} buys today</span>
                         </div>
                       </div>
                     </div>
@@ -793,8 +793,8 @@ const LessonViewer = () => {
                           <span className="text-[10px] uppercase font-bold text-brand-muted">Interest Earned</span>
                           <p className="text-base font-bold text-brand-success mt-1">₹{ciInterest.toLocaleString('en-IN')}</p>
                         </div>
-                        <div className="p-3 bg-brand-primary rounded-xl text-white">
-                          <span className="text-[10px] uppercase font-bold text-brand-sage">Total Accumulated Value</span>
+                        <div className="p-3 bg-brand-primary rounded-xl shadow-sm" style={{ color: '#ffffff' }}>
+                          <span className="text-[10px] uppercase font-bold" style={{ color: 'rgba(255, 255, 255, 0.75)' }}>Total Accumulated Value</span>
                           <p className="text-base font-bold mt-1">₹{ciAccumulated.toLocaleString('en-IN')}</p>
                         </div>
                       </div>

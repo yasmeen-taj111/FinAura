@@ -12,7 +12,6 @@ const navItems = [
   { label: 'Plan', path: '/plan', icon: Target },
   { label: 'Goals', path: '/goals', icon: Flag },
   { label: 'Explore', path: '/sandbox', icon: Compass },
-  { label: 'Mentors', path: '/mentors', icon: UsersRound },
   { label: 'My Profile', path: '/profile', icon: User },
 ];
 

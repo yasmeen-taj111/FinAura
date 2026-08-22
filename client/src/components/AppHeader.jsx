@@ -9,7 +9,6 @@ const routeLabels = {
   '/sandbox': 'Investment Sandbox',
   '/plan': 'Financial Plan',
   '/goals': 'My Goals',
-  '/mentors': 'Mentors',
   '/assessment': 'Assessment',
   '/profile': 'My Profile',
   '/assistant': 'AI Assistant',
