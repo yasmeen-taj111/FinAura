@@ -40,12 +40,13 @@
   }
 
   /* Keeps existing feature pages legible while their individual layouts are migrated. */
-  .legacy-page .text-white,
-  .legacy-page .text-slate-100,
-  .legacy-page .text-slate-200,
-  .legacy-page .text-slate-300 {
-    color: #12332C !important;
-  }
+  .legacy-page .text-white:not(button):not(button *):not(a):not(a *):not(iframe),
+  .legacy-page .text-slate-100:not(button):not(button *):not(a):not(a *),
+  .legacy-page .text-slate-200:not(button):not(button *):not(a):not(a *),
+  .legacy-page .text-slate-300:not(button):not(button *):not(a):not(a *) {
+     color: #12332C !important;
+   }
+
 
   .legacy-page .text-slate-400,
   .legacy-page .text-slate-500 {
