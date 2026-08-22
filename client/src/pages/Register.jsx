@@ -86,7 +86,7 @@ const Register = () => {
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center shadow-glow-primary mb-3">
             <Shield className="w-7 h-7 text-white" />
           </div>
-          <h1 className="text-3xl font-bold font-sans tracking-tight text-white">
+          <h1 className="text-3xl font-bold font-sans tracking-tight text-brand-ink">
             Fin<span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-secondary to-indigo-400">Aura</span>
           </h1>
           <p className="text-brand-muted text-sm mt-1.5 font-medium">
@@ -98,7 +98,7 @@ const Register = () => {
         <div className="glass-card rounded-3xl p-8 shadow-glass border border-white/10 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-brand-primary via-brand-secondary to-brand-primary"></div>
           
-          <h2 className="text-xl font-bold text-white mb-6">Create Account</h2>
+          <h2 className="text-xl font-bold text-brand-ink mb-6">Create Account</h2>
 
           {formError && (
             <motion.div
@@ -126,7 +126,7 @@ const Register = () => {
                   value={name}
                   onChange={handleChange}
                   placeholder="John Doe"
-                  className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-white/10 rounded-xl text-slate-100 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-slate-900 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
                   required
                 />
               </div>
@@ -147,7 +147,7 @@ const Register = () => {
                   value={email}
                   onChange={handleChange}
                   placeholder="john.doe@example.com"
-                  className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-white/10 rounded-xl text-slate-100 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-slate-900 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
                   required
                 />
               </div>
@@ -167,7 +167,7 @@ const Register = () => {
                   name="dateOfBirth"
                   value={dateOfBirth}
                   onChange={handleChange}
-                  className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-white/10 rounded-xl text-slate-100 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                  className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-slate-900 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
                   required
                 />
               </div>
@@ -191,13 +191,13 @@ const Register = () => {
                   value={password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-11 py-3 bg-brand-bg/50 border border-white/10 rounded-xl text-slate-100 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                  className="w-full pl-11 pr-11 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-slate-900 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-brand-muted hover:text-white transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-brand-muted hover:text-brand-ink transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
