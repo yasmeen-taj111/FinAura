@@ -134,10 +134,10 @@ const Assessment = () => {
       {/* Header */}
       <header className="max-w-xl w-full mx-auto flex items-center justify-between mb-6 z-10">
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center">
-            <Shield className="w-4.5 h-4.5 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-primary to-brand-secondary flex items-center justify-center shadow-sm" style={{ color: '#ffffff' }}>
+            <Shield className="w-4.5 h-4.5" color="#ffffff" />
           </div>
-          <span className="text-lg font-bold text-white">FinAura</span>
+          <span className="text-lg font-bold text-brand-ink">FinAura</span>
         </div>
         <div className="text-xs text-brand-muted font-bold tracking-wide uppercase">
           Step {currentStep} of {totalSteps - 1}
