@@ -29,6 +29,25 @@ const Register = () => {
     if (formError) setFormError('');
   };
 
+  const getNameErrorMessage = () => {
+    if (!name) return '';
+    const trimmed = name.trim();
+    if (trimmed.length < 2) return 'Name must be at least 2 characters';
+    if (trimmed.length > 50) return 'Name cannot exceed 50 characters';
+    if (!/^[a-zA-Z\s'\-\.]+$/.test(trimmed)) return 'Name can only contain letters, spaces, hyphens, apostrophes, and periods';
+    return '';
+  };
+
+  const passwordRequirements = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    specialChar: /[@$!%*?&#]/.test(password),
+  };
+
+  const isPasswordStrong = Object.values(passwordRequirements).every(Boolean);
+
   const calculateAge = (dobString) => {
     if (!dobString) return 0;
     const today = new Date();
@@ -46,6 +65,19 @@ const Register = () => {
     e.preventDefault();
     if (!name || !email || !password || !dateOfBirth) {
       setFormError('Please fill in all fields');
+      return;
+    }
+
+    // Verify name constraints
+    const nameErrorMsg = getNameErrorMessage();
+    if (nameErrorMsg) {
+      setFormError(nameErrorMsg);
+      return;
+    }
+
+    // Verify password strength
+    if (!isPasswordStrong) {
+      setFormError('Please make sure your password meets all strength requirements.');
       return;
     }
 
@@ -126,10 +158,19 @@ const Register = () => {
                   value={name}
                   onChange={handleChange}
                   placeholder="John Doe"
-                  className="w-full pl-11 pr-4 py-3 bg-brand-bg/50 border border-brand-border rounded-xl text-slate-900 placeholder-brand-muted/60 focus:outline-none focus:border-brand-secondary focus:ring-1 focus:ring-brand-secondary transition-all"
+                  className={`w-full pl-11 pr-4 py-3 bg-brand-bg/50 border rounded-xl text-slate-900 placeholder-brand-muted/60 focus:outline-none focus:ring-1 transition-all ${
+                    getNameErrorMessage()
+                      ? 'border-brand-danger focus:border-brand-danger focus:ring-brand-danger'
+                      : 'border-brand-border focus:border-brand-secondary focus:ring-brand-secondary'
+                  }`}
                   required
                 />
               </div>
+              {getNameErrorMessage() && (
+                <p className="text-[11px] text-brand-danger font-medium mt-1">
+                  {getNameErrorMessage()}
+                </p>
+              )}
             </div>
 
             {/* Email Field */}
@@ -202,6 +243,33 @@ const Register = () => {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
+              {password.length > 0 && (
+                <div className="mt-2.5 p-3.5 bg-brand-light/30 border border-brand-border/50 rounded-xl space-y-1.5 text-xs text-brand-muted font-medium transition-all duration-300">
+                  <p className="font-semibold text-brand-ink mb-1 uppercase tracking-wider text-[10px]">
+                    Password Requirements:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${passwordRequirements.length ? 'bg-brand-success' : 'bg-brand-muted/40'}`} />
+                    <span className={passwordRequirements.length ? 'text-brand-success' : ''}>At least 8 characters</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${passwordRequirements.uppercase ? 'bg-brand-success' : 'bg-brand-muted/40'}`} />
+                    <span className={passwordRequirements.uppercase ? 'text-brand-success' : ''}>At least one uppercase letter (A-Z)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${passwordRequirements.lowercase ? 'bg-brand-success' : 'bg-brand-muted/40'}`} />
+                    <span className={passwordRequirements.lowercase ? 'text-brand-success' : ''}>At least one lowercase letter (a-z)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${passwordRequirements.number ? 'bg-brand-success' : 'bg-brand-muted/40'}`} />
+                    <span className={passwordRequirements.number ? 'text-brand-success' : ''}>At least one number (0-9)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${passwordRequirements.specialChar ? 'bg-brand-success' : 'bg-brand-muted/40'}`} />
+                    <span className={passwordRequirements.specialChar ? 'text-brand-success' : ''}>At least one special character (@$!%*?&#)</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Submit Button */}

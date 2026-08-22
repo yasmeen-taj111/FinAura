@@ -57,6 +57,63 @@
     background-color: #E8F0E8 !important;
   }
 
+  /* Ensure that text inside solid dark green / success / danger backgrounds, buttons, and links remains white */
+  .legacy-page button.bg-brand-primary,
+  .legacy-page button.bg-brand-secondary,
+  .legacy-page button.bg-brand-success,
+  .legacy-page button.bg-brand-danger,
+  .legacy-page button.bg-gradient-to-r,
+  .legacy-page a.bg-brand-primary,
+  .legacy-page a.bg-brand-secondary,
+  .legacy-page a.bg-brand-success,
+  .legacy-page a.bg-brand-danger,
+  .legacy-page a.bg-gradient-to-r,
+  .legacy-page .bg-brand-primary,
+  .legacy-page .bg-brand-secondary,
+  .legacy-page .bg-brand-success,
+  .legacy-page .bg-brand-danger,
+  .legacy-page .bg-gradient-to-r {
+    color: #ffffff !important;
+  }
+  .legacy-page button.bg-brand-primary *,
+  .legacy-page button.bg-brand-secondary *,
+  .legacy-page button.bg-brand-success *,
+  .legacy-page button.bg-brand-danger *,
+  .legacy-page button.bg-gradient-to-r *,
+  .legacy-page a.bg-brand-primary *,
+  .legacy-page a.bg-brand-secondary *,
+  .legacy-page a.bg-brand-success *,
+  .legacy-page a.bg-brand-danger *,
+  .legacy-page a.bg-gradient-to-r * {
+    color: #ffffff !important;
+  }
+
+  /* Ensure that text inside white / light background buttons and links is dark/black */
+  .legacy-page button.bg-white,
+  .legacy-page button.bg-brand-light,
+  .legacy-page button.bg-slate-50,
+  .legacy-page button.bg-slate-100,
+  .legacy-page button.bg-slate-200,
+  .legacy-page a.bg-white,
+  .legacy-page a.bg-brand-light,
+  .legacy-page a.bg-slate-50,
+  .legacy-page a.bg-slate-100,
+  .legacy-page a.bg-slate-200 {
+    color: #12332C !important;
+  }
+  .legacy-page button.bg-white *,
+  .legacy-page button.bg-brand-light *,
+  .legacy-page button.bg-slate-50 *,
+  .legacy-page button.bg-slate-100 *,
+  .legacy-page button.bg-slate-200 *,
+  .legacy-page a.bg-white *,
+  .legacy-page a.bg-brand-light *,
+  .legacy-page a.bg-slate-50 *,
+  .legacy-page a.bg-slate-100 *,
+  .legacy-page a.bg-slate-200 * {
+    color: #12332C !important;
+  }
+
   .animate-pulse-slow {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
