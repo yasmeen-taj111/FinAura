@@ -3,6 +3,7 @@ const Portfolio = require('../models/Portfolio');
 const Transaction = require('../models/Transaction');
 const UserProgress = require('../models/UserProgress');
 const Badge = require('../models/Badge');
+const ConsolidatedPortfolio = require('../models/ConsolidatedPortfolio');
 
 // Helper to check and award badge
 const awardBadgeDirect = async (userId, badgeCode) => {
@@ -325,10 +326,200 @@ const simulateMarket = async (req, res, next) => {
   }
 };
 
+/**
+ * @desc    Get user consolidated external investments
+ * @route   GET /api/portfolio/consolidated
+ * @access  Private
+ */
+const getConsolidatedPortfolio = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const holdings = await ConsolidatedPortfolio.find({ userId }).lean();
+
+    let totalCurrentValue = 0;
+    let totalInvestedValue = 0;
+    
+    const platformBreakdown = {};
+    const assetTypeBreakdown = {};
+
+    const enrichedHoldings = holdings.map(h => {
+      const currentValue = h.quantity * h.currentPrice;
+      const investedValue = h.quantity * h.averageBuyPrice;
+      const gainLoss = currentValue - investedValue;
+      const roi = investedValue > 0 ? (gainLoss / investedValue) * 100 : 0;
+
+      totalCurrentValue += currentValue;
+      totalInvestedValue += investedValue;
+
+      // Platform distribution
+      platformBreakdown[h.platform] = (platformBreakdown[h.platform] || 0) + currentValue;
+
+      // Asset Type distribution
+      assetTypeBreakdown[h.assetType] = (assetTypeBreakdown[h.assetType] || 0) + currentValue;
+
+      return {
+        ...h,
+        currentValue,
+        investedValue,
+        gainLoss,
+        roi
+      };
+    });
+
+    const overallGainLoss = totalCurrentValue - totalInvestedValue;
+    const overallGainLossPercent = totalInvestedValue > 0 ? (overallGainLoss / totalInvestedValue) * 100 : 0;
+
+    res.status(200).json({
+      holdings: enrichedHoldings,
+      totalCurrentValue,
+      totalInvestedValue,
+      overallGainLoss,
+      overallGainLossPercent,
+      platformBreakdown,
+      assetTypeBreakdown
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Add consolidated external holding manually
+ * @route   POST /api/portfolio/consolidated
+ * @access  Private
+ */
+const addConsolidatedHolding = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { platform, symbol, name, assetType, quantity, averageBuyPrice, currentPrice } = req.body;
+
+    if (!platform || !symbol || !name || !assetType || quantity === undefined || averageBuyPrice === undefined) {
+      res.status(400);
+      throw new Error('Please provide platform, symbol, name, assetType, quantity, and averageBuyPrice');
+    }
+
+    const holding = await ConsolidatedPortfolio.findOneAndUpdate(
+      { userId, platform: platform.trim(), symbol: symbol.toUpperCase().trim() },
+      {
+        userId,
+        platform: platform.trim(),
+        symbol: symbol.toUpperCase().trim(),
+        name: name.trim(),
+        assetType,
+        quantity: Number(quantity),
+        averageBuyPrice: Number(averageBuyPrice),
+        currentPrice: Number(currentPrice || averageBuyPrice),
+      },
+      { new: true, upsert: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      holding
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Bulk consolidate uploader statement (Zerodha/Groww CSV)
+ * @route   POST /api/portfolio/consolidated/bulk
+ * @access  Private
+ */
+const bulkConsolidateHoldings = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { holdings } = req.body;
+
+    if (!holdings || !Array.isArray(holdings)) {
+      res.status(400);
+      throw new Error('Please provide an array of holdings');
+    }
+
+    // Clear existing data for platforms in upload to simulate overwriting previous broker CSV
+    const platformsToClear = [...new Set(holdings.map(h => h.platform))];
+    if (platformsToClear.length > 0) {
+      await ConsolidatedPortfolio.deleteMany({ userId, platform: { $in: platformsToClear } });
+    }
+
+    const insertedHoldings = [];
+    for (const h of holdings) {
+      const created = await ConsolidatedPortfolio.create({
+        userId,
+        platform: h.platform.trim(),
+        symbol: h.symbol.toUpperCase().trim(),
+        name: h.name.trim(),
+        assetType: h.assetType,
+        quantity: Number(h.quantity),
+        averageBuyPrice: Number(h.averageBuyPrice),
+        currentPrice: Number(h.currentPrice || h.averageBuyPrice),
+      });
+      insertedHoldings.push(created);
+    }
+
+    res.status(200).json({
+      success: true,
+      count: insertedHoldings.length,
+      holdings: insertedHoldings
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Delete single consolidated holding
+ * @route   DELETE /api/portfolio/consolidated/:id
+ * @access  Private
+ */
+const deleteConsolidatedHolding = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { id } = req.params;
+
+    const holding = await ConsolidatedPortfolio.findOneAndDelete({ _id: id, userId });
+    if (!holding) {
+      res.status(404);
+      throw new Error('Holding not found or unauthorized');
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Consolidated holding successfully removed'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Clear all consolidated holdings
+ * @route   DELETE /api/portfolio/consolidated
+ * @access  Private
+ */
+const clearConsolidatedHoldings = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    await ConsolidatedPortfolio.deleteMany({ userId });
+    res.status(200).json({
+      success: true,
+      message: 'All consolidated holdings successfully cleared'
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPortfolio,
   getAssets,
   executeTrade,
   getTransactions,
   simulateMarket,
+  getConsolidatedPortfolio,
+  addConsolidatedHolding,
+  bulkConsolidateHoldings,
+  deleteConsolidatedHolding,
+  clearConsolidatedHoldings
 };
