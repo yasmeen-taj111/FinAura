@@ -329,7 +329,7 @@ const Sandbox = () => {
               className={`flex items-center space-x-2 px-5 py-3 border-b-2 font-bold text-sm transition-all cursor-pointer ${
                 active
                   ? 'border-brand-secondary text-brand-secondary'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
+                  : 'border-transparent text-brand-muted hover:text-brand-ink'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -447,7 +447,7 @@ const Sandbox = () => {
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       marketFilter === type.value
                         ? 'bg-gradient-to-tr from-brand-primary to-brand-secondary text-white shadow-glow-primary'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                         : 'text-white/80 hover:text-white hover:bg-white/5'
                     }`}
                   >
                     {type.label}
