@@ -290,7 +290,7 @@ const Goals = () => {
             <span className="text-[10px] font-bold text-brand-primary uppercase tracking-widest block mb-2">PERSONAL SAVINGS GOALS</span>
             <h1 className="text-3xl md:text-4xl font-serif text-brand-ink mb-2">Goal Planning Terminal</h1>
             <p className="text-brand-muted text-xs md:text-sm max-w-2xl leading-relaxed">
-              Save a goal and its current progress here. Forecasts are estimates only; use “Save monthly plan” in the simulator to retain its contribution and return assumptions.
+              Save a goal and its current progress here. Forecasts are estimates only, use “Save monthly plan” in the simulator to retain its contribution and return assumptions.
             </p>
           </div>
 
@@ -417,7 +417,7 @@ const Goals = () => {
 
               <div className="text-[9px] text-brand-muted leading-relaxed flex gap-1">
                 <Info size={11} className="flex-shrink-0 mt-0.5" />
-                <span>Calculations assume a contribution at the end of each month and a constant expected return. Mutual fund valuations fluctuate; past performance does not guarantee returns.</span>
+                <span>Calculations assume a contribution at the end of each month and a constant expected return. Mutual fund valuations fluctuate, past performance does not guarantee returns.</span>
               </div>
             </div>
           </div>
